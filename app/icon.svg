@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Wishy logo</title>
+  <style>
+    .right { stroke: #415d43 }
+    @media (prefers-color-scheme: dark) { .right { stroke: #a1cca5 } }
+  </style>
+  <g fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="#709775" d="M29 100 L79.8 188 L114.4 128 L149 188"/>
+    <path class="right" d="M114.4 128 L149 188 L227.5 52"/>
+  </g>
+</svg>

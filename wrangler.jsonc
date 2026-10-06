@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wishy",
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "vinext/server/app-router-entry",
+  "workers_dev": true,
+  // Per-version preview URLs would be extra public copies where sign-in fails (not a Neon Auth trusted domain).
+  "preview_urls": false,
+  "assets": {
+    "not_found_handling": "none",
+  },
+  // Secrets (DATABASE_URL, NEON_AUTH_*, WISHY_ADMIN_EMAIL) are not stored here.
+  // Local dev reads them from .env.local; production uses `wrangler secret put`.
+}
