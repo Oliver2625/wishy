@@ -17,7 +17,7 @@ export function Photo({ src, className }: { src: string | null; className?: stri
     <div className={cn('flex items-center justify-center overflow-hidden bg-muted text-ring', className)}>
       {src
         // eslint-disable-next-line @next/next/no-img-element -- arbitrary shop hosts, so no next/image allowlist
-        ? <img src={src} alt="" referrerPolicy="no-referrer" className="size-full object-cover" />
+        ? <img src={src} alt="" referrerPolicy="no-referrer" className="object-cover object-center" />
         : <ImageIcon className="size-8" />}
     </div>
   )
