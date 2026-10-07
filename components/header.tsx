@@ -40,7 +40,7 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger aria-label="Account" className="rounded-full outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50 motion-safe:hover:scale-105">
-        <Avatar name={name} background={false} className="size-12" />
+        <Avatar name={name} background={false} className="size-12 cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-48">
         <DropdownMenuGroup>
