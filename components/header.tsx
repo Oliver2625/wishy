@@ -1,14 +1,13 @@
 'use client'
 
-import { GiftIcon, ListIcon, LogOutIcon, SettingsIcon, UserIcon, UsersIcon } from 'lucide-react'
+import { GiftIcon, ListIcon, LogOutIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { buttonVariants } from '@/components/ui/button'
+import { Avatar } from '@/components/wish-card'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
 import { logout } from '@/app/login/actions'
 
 const links = [
@@ -40,8 +39,8 @@ export function Nav() {
 export function UserMenu({ name, email }: { name: string; email: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Account" className={cn(buttonVariants({ variant: 'outline', size: 'icon-lg' }), 'rounded-full')}>
-        <UserIcon />
+      <DropdownMenuTrigger aria-label="Account" className="rounded-full outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50 motion-safe:hover:scale-105">
+        <Avatar name={name} background={false} className="size-12" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-48">
         <DropdownMenuGroup>

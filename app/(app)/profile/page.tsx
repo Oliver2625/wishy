@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 sm:py-12">
       <div className="flex items-center gap-5">
-        <Avatar name={me.name} className="size-16 bg-brand text-2xl text-brand-foreground sm:size-20 sm:text-3xl" />
+        <Avatar name={me.name} className="size-16 sm:size-20" />
         <div className="min-w-0">
           <h1 className="truncate text-4xl font-bold tracking-tight sm:text-5xl">{me.name}</h1>
           <p className="mt-1 truncate text-muted-foreground">{me.email}</p>
@@ -39,7 +39,7 @@ export default async function ProfilePage() {
             <ul className="mt-4 space-y-3">
               {people.map((f) => (
                 <li key={f.email} className="flex items-center gap-3 font-semibold">
-                  <Avatar name={f.name} className="bg-brand text-sm text-brand-foreground" /> {f.name}
+                  <Avatar name={f.name} /> {f.name}
                 </li>
               ))}
             </ul>

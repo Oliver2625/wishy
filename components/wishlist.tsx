@@ -42,7 +42,7 @@ async function Sidebar({ me, activeId }: { me: Member; activeId?: string }) {
             {shared.map((l) => (
               <li key={l.id}>
                 <Link href={`/family/${l.id}`} className={item}>
-                  <Avatar name={l.name} className="text-sm" />
+                  <Avatar name={l.name} />
                   <span className="truncate">{l.title}</span>
                 </Link>
               </li>

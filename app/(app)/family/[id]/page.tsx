@@ -32,7 +32,7 @@ export default async function FamilyListPage({ params }: PageProps<'/family/[id]
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
       <div className="flex items-center gap-5">
-        <Avatar name={list.owner_name} className="size-16 bg-brand text-2xl text-brand-foreground sm:size-20 sm:text-3xl" />
+        <Avatar name={list.owner_name} className="size-16 sm:size-20" />
         <div className="min-w-0">
           <span className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground">{OCCASIONS[list.occasion as Occasion]}</span>
           <h1 className="mt-3 text-3xl font-bold tracking-tight wrap-break-word sm:text-5xl">{list.title}</h1>

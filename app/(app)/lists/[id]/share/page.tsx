@@ -55,7 +55,7 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
               {people.map((p) => (
                 <li key={p.email} className="flex items-center gap-2 py-3 sm:gap-4">
                   {/* No avatar on phones: the name and email get the room and truncate behind the controls */}
-                  <Avatar name={p.name ?? p.email} className="hidden size-11 sm:flex" />
+                  <Avatar name={p.name ?? p.email} className="hidden size-11 sm:block" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold">{p.name ?? 'Not signed in yet'}</div>
                     <div className="truncate text-sm text-muted-foreground">{p.email}</div>

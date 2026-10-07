@@ -19,7 +19,7 @@ export default async function FamilyPage() {
         {[...people.values()].map((theirs) => (
           <section key={theirs[0].owner_id}>
             <h2 className="flex items-center gap-3 text-xl font-semibold">
-              <Avatar name={theirs[0].name} className="size-10 bg-brand text-brand-foreground" /> {theirs[0].name}
+              <Avatar name={theirs[0].name} className="size-10" /> {theirs[0].name}
             </h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {theirs.map((l) => (

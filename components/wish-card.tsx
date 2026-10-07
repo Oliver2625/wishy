@@ -1,3 +1,4 @@
+import { Blobatar } from '@blobatar/react'
 import { ImageIcon, StarIcon } from 'lucide-react'
 import type { Wish } from '@/lib/lists'
 import { cn } from '@/lib/utils'
@@ -84,10 +85,9 @@ export function WishRow({ wish, children, index }: { wish: CardWish; children?: 
   )
 }
 
-export function Avatar({ name, className }: { name: string; className?: string }) {
-  return (
-    <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full bg-muted font-semibold text-foreground', className)} title={name}>
-      {name.trim()[0]?.toUpperCase()}
-    </span>
-  )
+// Blobatar: a deterministic blob from the name, rendered as a static <img> (no client JS, so fine in server components).
+// Size it with className; size={96} is just the SVG's resolution. alt="": the name is always shown next to it or in the title.
+// background: false drops the blob's circle, for places that frame it themselves (the header).
+export function Avatar({ name, className, background = true }: { name: string; className?: string; background?: boolean }) {
+  return <Blobatar name={name} size={96} background={background && 'circle'} alt="" title={name} className={cn('size-8 shrink-0 rounded-full', className)} />
 }
