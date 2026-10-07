@@ -5,7 +5,7 @@ export type Role = 'owner' | 'reserve' | 'view'
 export type Member = { id: string; email: string }
 
 export type Wish = {
-  id: string; title: string; store: string | null; url: string | null; price: string | null
+  id: string; title: string; store: string | null; url: string | null; price: string | null; currency: string
   priority: number; note: string | null; image_url: string | null
   reserved: boolean; reserved_by_me: boolean; reserver_name: string | null
 }
@@ -29,7 +29,7 @@ export async function getList(id: string, me: Member) {
 // Reservation details are filtered here, server-side, per the list's surprise settings.
 export async function getWishes(list: NonNullable<Awaited<ReturnType<typeof getList>>>, me: Member): Promise<Wish[]> {
   const rows = await sql`
-    select w.id, w.title, w.store, w.url, w.price, w.priority, w.note, w.image_url, w.reserved_by, coalesce(nullif(r.name, ''), split_part(r.email, '@', 1)) as reserver_name
+    select w.id, w.title, w.store, w.url, w.price, w.currency, w.priority, w.note, w.image_url, w.reserved_by, coalesce(nullif(r.name, ''), split_part(r.email, '@', 1)) as reserver_name
     from wishes w left join neon_auth."user" r on r.id = w.reserved_by
     where w.wishlist_id = ${list.id} order by w.priority desc, w.created_at`
   const hidden = list.role === 'owner' && list.hide_reservations

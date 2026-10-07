@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
   return (
     <>
       <header className="border-b bg-card">
-        <div className="mx-auto flex h-18 max-w-7xl items-center gap-6 px-4 sm:px-8">
+        <div className="mx-auto flex h-18 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5 text-2xl font-bold tracking-tight">
             <Logo />
           </Link>

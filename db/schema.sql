@@ -73,3 +73,8 @@ create table if not exists profiles (
   likes text,
   avoid text
 );
+
+-- Currency (v7). Profile: what fetched prices get converted to. Wish: what its price is in,
+-- so changing the profile later never relabels old prices.
+alter table profiles add column if not exists currency text not null default 'DKK' check (currency ~ '^[A-Z]{3}$');
+alter table wishes add column if not exists currency text not null default 'DKK' check (currency ~ '^[A-Z]{3}$');

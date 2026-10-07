@@ -47,7 +47,7 @@ export function ListForm({ family, list, wishCount = 0 }: {
           <legend className="mb-2 text-sm font-medium">Occasion</legend>
           <div className="flex flex-wrap gap-2">
             {(Object.entries(OCCASIONS) as [Occasion, string][]).map(([value, label]) => (
-              <label key={value} className="cursor-pointer rounded-full border px-5 py-2.5 font-medium transition-colors hover:bg-accent has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
+              <label key={value} className="cursor-pointer rounded-lg border px-5 py-2.5 font-medium transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
                 <input type="radio" name="occasion" value={value} checked={v.occasion === value}
                   onChange={() => setV({ ...v, occasion: value })} className="sr-only" />
                 {label}
@@ -94,7 +94,7 @@ export function ListForm({ family, list, wishCount = 0 }: {
         <FieldError>{state?.error}</FieldError>
         <div className="flex items-center justify-end gap-3">
           <Link href={back} className={buttonVariants({ variant: 'ghost', className: big })}>Cancel</Link>
-          <Button type="submit" disabled={saving} className={`${big} rounded-xl px-6`}>{list ? 'Save list' : 'Create list'}</Button>
+          <Button type="submit" disabled={saving} className={`${big} px-6`}>{list ? 'Save list' : 'Create list'}</Button>
         </div>
       </form>
 

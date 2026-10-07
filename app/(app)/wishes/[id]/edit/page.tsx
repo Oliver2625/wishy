@@ -13,7 +13,7 @@ export default async function EditWishPage({ params }: PageProps<'/wishes/[id]/e
 
   // Only the owner can edit; reservation fields are never sent to the form.
   const [[wish], lists] = await Promise.all([
-    sql`select w.id, w.wishlist_id, w.title, w.store, w.url, w.price, w.priority, w.note, w.image_url, l.title as list_title
+    sql`select w.id, w.wishlist_id, w.title, w.store, w.url, w.price, w.currency, w.priority, w.note, w.image_url, l.title as list_title
         from wishes w join wishlists l on l.id = w.wishlist_id
         where w.id = ${id} and l.owner_id = ${me.id}`,
     myLists(me),
@@ -27,6 +27,7 @@ export default async function EditWishPage({ params }: PageProps<'/wishes/[id]/e
       <WishForm
         lists={lists.map(({ id, title }) => ({ id, title }))}
         listId={wish.wishlist_id}
+        currency={wish.currency}
         wish={{
           id: wish.id, title: wish.title, store: wish.store ?? '', url: wish.url ?? '', price: wish.price === null ? '' : String(Number(wish.price)),
           priority: wish.priority, note: wish.note ?? '', image_url: wish.image_url ?? '',

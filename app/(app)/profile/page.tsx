@@ -11,7 +11,7 @@ export default async function ProfilePage() {
   if (!me) return null
 
   const [[p], people] = await Promise.all([
-    sql`select birthday::text as birthday, clothing_size, shoe_size, likes, avoid from profiles where user_id = ${me.id}`,
+    sql`select birthday::text as birthday, clothing_size, shoe_size, likes, avoid, currency from profiles where user_id = ${me.id}`,
     family(me),
   ])
   const admin = isAdmin(me.email)
@@ -29,13 +29,13 @@ export default async function ProfilePage() {
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_20rem]">
         <ProfileForm profile={{
           name: me.name, email: me.email, birthday: p?.birthday ?? '',
-          clothing: p?.clothing_size ?? '', shoe: p?.shoe_size ?? '', likes: p?.likes ?? '', avoid: p?.avoid ?? '',
+          clothing: p?.clothing_size ?? '', shoe: p?.shoe_size ?? '', likes: p?.likes ?? '', avoid: p?.avoid ?? '', currency: p?.currency ?? 'DKK',
         }} />
 
         <aside className="space-y-6">
-          <section className="rounded-2xl bg-foreground p-6 text-background">
-            <h2 className="text-2xl font-bold">My family</h2>
-            <p className="text-sm opacity-80">{people.length} {people.length === 1 ? 'person' : 'people'} on Wishy with you</p>
+          <section className="rounded-2xl border bg-card p-6">
+            <h2 className="text-lg font-semibold">My family</h2>
+            <p className="text-sm text-muted-foreground">{people.length} {people.length === 1 ? 'person' : 'people'} on Wishy with you</p>
             <ul className="mt-4 space-y-3">
               {people.map((f) => (
                 <li key={f.email} className="flex items-center gap-3 font-semibold">
@@ -49,7 +49,7 @@ export default async function ProfilePage() {
           <section className="space-y-3 rounded-2xl border bg-card p-6">
             <h2 className="text-lg font-semibold">Account</h2>
             <form action={logout}>
-              <Button type="submit" variant="outline" className="h-11 w-full rounded-xl text-base">Log out</Button>
+              <Button type="submit" variant="outline" className="h-11 w-full text-base">Log out</Button>
             </form>
             {admin ? (
               <p className="text-sm text-muted-foreground">You&apos;re the admin, so this account can&apos;t be deleted here.</p>

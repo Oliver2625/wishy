@@ -2,6 +2,7 @@
 
 import { refresh } from 'next/cache'
 import { auth, getMember, isAdmin, isInvited } from '@/lib/auth'
+import { formatPrice, isCurrency, toCurrency } from '@/lib/currency'
 import { sql } from '@/lib/db'
 import { fetchPublicPage } from '@/lib/fetch-page'
 import { OCCASIONS } from '@/lib/occasions'
@@ -63,8 +64,10 @@ export async function saveWish(_: Result, form: FormData): Promise<Result> {
   const note = text(form, 'note', 500) || null
   const price = parsePrice(text(form, 'price', 30))
   const priority = Number(form.get('priority')) || 2
+  const currency = text(form, 'currency', 3)
 
   if (!title) return { error: 'Tell your family what you wish for.' }
+  if (!isCurrency(currency)) return { error: 'Unknown currency.' }
   if (Number.isNaN(price)) return { error: 'Price should be a number, like 649.' }
   if ((url && !isHttp(url)) || (imageUrl && !isHttp(imageUrl))) return { error: 'Links must start with http:// or https://' }
   if (![1, 2, 3].includes(priority)) return { error: 'Pick how much you want it.' }
@@ -72,14 +75,14 @@ export async function saveWish(_: Result, form: FormData): Promise<Result> {
   const rows = id
     ? await sql`
         update wishes set wishlist_id = ${listId}, title = ${title}, store = ${store}, url = ${url}, image_url = ${imageUrl},
-               note = ${note}, price = ${price}, priority = ${priority}
+               note = ${note}, price = ${price}, currency = ${currency}, priority = ${priority}
         where id = ${id}
           and wishlist_id in (select id from wishlists where owner_id = ${me.id})
           and exists (select 1 from wishlists where id = ${listId} and owner_id = ${me.id})
         returning id`
     : await sql`
-        insert into wishes (wishlist_id, title, store, url, image_url, note, price, priority)
-        select id, ${title}, ${store}, ${url}, ${imageUrl}, ${note}, ${price}, ${priority}
+        insert into wishes (wishlist_id, title, store, url, image_url, note, price, currency, priority)
+        select id, ${title}, ${store}, ${url}, ${imageUrl}, ${note}, ${price}, ${currency}, ${priority}
         from wishlists where id = ${listId} and owner_id = ${me.id}
         returning id`
   if (!rows.length) return { error: 'You can only save wishes to your own lists.' }
@@ -110,11 +113,20 @@ export async function toggleReserve(id: string): Promise<Result> {
 }
 
 // "Fetch details": read name, price, store and photo from a shop page.
-export async function fetchDetails(url: string) {
+// A price in another currency is converted to `currency` (the one the form saves in).
+export async function fetchDetails(url: string, currency: string) {
   await member()
+  if (!isCurrency(currency)) return { error: 'Unknown currency.' }
   try {
     const page = await fetchPublicPage(url)
-    return parseProduct(page.html, page.url)
+    const { currency: from, ...p } = parseProduct(page.html, page.url)
+    const amount = parsePrice(p.price)
+    if (!from || from === currency || !amount) return { ...p, priceNote: '' }
+    const converted = await toCurrency(amount, from, currency)
+    const original = `${amount} ${from}`
+    return converted === null
+      ? { ...p, price: '', priceNote: `The shop’s price is ${original}. Couldn’t convert it, so type it in.` }
+      : { ...p, price: String(converted), priceNote: `Price converted from ${original} to ${formatPrice(converted, currency)}.` }
   } catch (e) {
     // Only our own guard messages are shown; network/DNS errors get a generic one.
     const own = e instanceof Error && e.name === 'Error' && !('code' in e)
@@ -180,17 +192,19 @@ export async function saveProfile(_: Result, form: FormData): Promise<Result> {
   const shoe = text(form, 'shoe', 20) || null
   const likes = text(form, 'likes', 500) || null
   const avoid = text(form, 'avoid', 500) || null
+  const currency = text(form, 'currency', 3)
 
   if (!name) return { error: 'Your name is required.' }
+  if (!isCurrency(currency)) return { error: 'Pick a currency.' }
   if (birthday && !/^\d{4}-\d{2}-\d{2}$/.test(birthday)) return { error: 'That birthday doesn’t look right.' }
 
   const { error } = await auth.updateUser({ name })
   if (error) return { error: 'Couldn’t save your name. Try again.' }
   await sql`
-    insert into profiles (user_id, birthday, clothing_size, shoe_size, likes, avoid)
-    values (${me.id}, ${birthday}, ${clothing}, ${shoe}, ${likes}, ${avoid})
+    insert into profiles (user_id, birthday, clothing_size, shoe_size, likes, avoid, currency)
+    values (${me.id}, ${birthday}, ${clothing}, ${shoe}, ${likes}, ${avoid}, ${currency})
     on conflict (user_id) do update set birthday = excluded.birthday, clothing_size = excluded.clothing_size,
-      shoe_size = excluded.shoe_size, likes = excluded.likes, avoid = excluded.avoid`
+      shoe_size = excluded.shoe_size, likes = excluded.likes, avoid = excluded.avoid, currency = excluded.currency`
   refresh()
   return { message: 'Profile saved' }
 }

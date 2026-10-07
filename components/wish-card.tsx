@@ -1,16 +1,15 @@
 import { ImageIcon, StarIcon } from 'lucide-react'
 import type { Wish } from '@/lib/lists'
 import { cn } from '@/lib/utils'
+import { formatPrice } from '@/lib/currency'
 
-export type CardWish = Pick<Wish, 'title' | 'store' | 'url' | 'price' | 'priority' | 'note' | 'image_url'>
+export type CardWish = Pick<Wish, 'title' | 'store' | 'url' | 'price' | 'currency' | 'priority' | 'note' | 'image_url'>
 
 // Staggered entrance for list items. CSS only (tw-animate-css), skipped when reduced motion is on.
 // Kept here, not in the 'use client' motion.tsx, so server components get real values.
 const enter = 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 fill-mode-both duration-300 ease-out'
 const stagger = (i: number) => ({ animationDelay: `${Math.min(i, 8) * 45}ms` })
 
-const kr = new Intl.NumberFormat('da-DK', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 })
-export const formatPrice = (p: string | number | null) => (p === null || p === '' || Number.isNaN(Number(p)) ? '' : kr.format(Number(p)))
 
 export function Photo({ src, className }: { src: string | null; className?: string }) {
   return (
@@ -31,7 +30,7 @@ const Title = ({ wish }: { wish: CardWish }) =>
 export function MostWanted({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground', className)}>
-      <StarIcon className="size-3.5 fill-current" /> Most wanted
+      <StarIcon className="size-3.5 fill-current text-yellow-400" /> Most wanted
     </span>
   )
 }
@@ -53,7 +52,7 @@ export function WishCard({ wish, extra, children, index }: { wish: CardWish; ext
         {wish.store && <p className="text-muted-foreground">{wish.store}</p>}
         {extra}
         <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-          <span className="text-xl font-bold">{formatPrice(wish.price)}</span>
+          <span className="text-xl font-bold">{formatPrice(wish.price, wish.currency)}</span>
           {children}
         </div>
         {wish.note && <p className="mt-4 rounded-xl bg-secondary px-4 py-3 text-sm">{wish.note}</p>}
@@ -64,20 +63,23 @@ export function WishCard({ wish, extra, children, index }: { wish: CardWish; ext
 
 // Row (family view of someone else's list).
 export function WishRow({ wish, children, index }: { wish: CardWish; children?: React.ReactNode; index?: number }) {
-  const meta = [wish.store, formatPrice(wish.price)].filter(Boolean).join(' · ')
+  const meta = [wish.store, formatPrice(wish.price, wish.currency)].filter(Boolean).join(' · ')
   return (
     <article
       style={index === undefined ? undefined : stagger(index)}
-      className={cn('flex flex-wrap items-center gap-5 rounded-2xl border bg-card p-4 transition-[border-color,box-shadow] duration-200 hover:border-ring/60 hover:shadow-md hover:shadow-primary/5 sm:flex-nowrap', index !== undefined && enter)}
+      className={cn('flex flex-wrap items-start gap-4 rounded-2xl border bg-card p-4 transition-[border-color,box-shadow] duration-200 hover:border-ring/60 hover:shadow-md hover:shadow-primary/5 sm:flex-nowrap sm:items-center sm:gap-5', index !== undefined && enter)}
     >
-      <Photo src={wish.image_url} className="size-24 shrink-0 rounded-xl" />
+      <Photo src={wish.image_url} className="size-20 shrink-0 rounded-xl sm:size-24" />
       <div className="min-w-0 flex-1">
         {wish.priority === 3 && <MostWanted className="mb-1.5 px-2 py-0.5 text-xs" />}
-        <h3 className="text-lg font-semibold"><Title wish={wish} /></h3>
+        <h3 className="text-lg leading-snug font-semibold wrap-break-word"><Title wish={wish} /></h3>
         {meta && <p className="text-muted-foreground">{meta}</p>}
-        {wish.note && <p className="mt-2">&ldquo;{wish.note}&rdquo;</p>}
+        {wish.note && <p className="mt-2 hidden sm:block">&ldquo;{wish.note}&rdquo;</p>}
       </div>
-      <div className="flex w-full items-center justify-end gap-4 sm:w-auto">{children}</div>
+      {/* Full card width on phones, so a long note isn't squeezed into the column beside the photo */}
+      {wish.note && <p className="w-full rounded-xl bg-secondary px-4 py-3 text-sm sm:hidden">{wish.note}</p>}
+      {/* Phones: action fills the card width. From sm: right-aligned beside the text */}
+      <div className="flex w-full items-center gap-4 *:flex-1 sm:w-auto sm:*:flex-none">{children}</div>
     </article>
   )
 }

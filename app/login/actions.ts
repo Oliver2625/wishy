@@ -1,5 +1,6 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { after } from 'next/server'
 import { auth, isInvited } from '@/lib/auth'
@@ -29,10 +30,16 @@ export async function login(_: LoginState, form: FormData): Promise<LoginState> 
     // after the response), so the invite list can't be probed.
     // The rate limit also runs in after(), so it can't change the timing either.
     if (await isInvited(email)) {
+      const origin = (await headers()).get('origin') ?? ''
       after(async () => {
         if (!(await allowCodeSend(email))) return console.warn('Sign-in code limit reached:', email)
-        const { error } = await auth.emailOtp.sendVerificationOtp({ email, type: 'sign-in' })
-        if (error) console.error('Sign-in code not sent:', error.message)
+        // Plain fetch, not auth.emailOtp: vinext runs after() outside the action scope, where the SDK's cookies() call throws.
+        const res = await fetch(`${process.env.NEON_AUTH_BASE_URL!.replace(/\/$/, '')}/email-otp/send-verification-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Origin: origin },
+          body: JSON.stringify({ email, type: 'sign-in' }),
+        })
+        if (!res.ok) console.error('Sign-in code not sent:', res.status, await res.text())
       })
     }
     return { email }

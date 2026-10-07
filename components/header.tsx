@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react'
+import { GiftIcon, ListIcon, LogOutIcon, SettingsIcon, UserIcon, UsersIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { buttonVariants } from '@/components/ui/button'
@@ -12,11 +12,12 @@ import { cn } from '@/lib/utils'
 import { logout } from '@/app/login/actions'
 
 const links = [
-  { href: '/', label: 'My lists', active: (p: string) => p === '/' || p.startsWith('/lists') || p.startsWith('/wishes') },
-  { href: '/family', label: 'Family', active: (p: string) => p.startsWith('/family') },
-  { href: '/reserved', label: 'Reserved by me', active: (p: string) => p === '/reserved' },
+  { href: '/', label: 'My lists', icon: ListIcon, active: (p: string) => p === '/' || p.startsWith('/lists') || p.startsWith('/wishes') },
+  { href: '/family', label: 'Family', icon: UsersIcon, active: (p: string) => p.startsWith('/family') },
+  { href: '/reserved', label: 'Reserved by me', icon: GiftIcon, active: (p: string) => p === '/reserved' },
 ]
 
+// Icons only on phones (label stays for screen readers), icon + label from sm up.
 export function Nav() {
   const path = usePathname()
   return (
@@ -26,9 +27,10 @@ export function Nav() {
           key={l.href}
           href={l.href}
           aria-current={l.active(path) ? 'page' : undefined}
-          className="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent aria-[current=page]:bg-accent aria-[current=page]:text-primary sm:px-4 sm:text-base"
+          className="flex items-center gap-2 rounded-lg p-2.5 font-medium transition-colors hover:bg-accent aria-[current=page]:bg-accent aria-[current=page]:text-primary sm:px-4 sm:py-2"
         >
-          {l.label}
+          <l.icon className="size-5" />
+          <span className="sr-only sm:not-sr-only">{l.label}</span>
         </Link>
       ))}
     </nav>

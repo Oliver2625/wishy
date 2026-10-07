@@ -18,31 +18,34 @@ export function DatePicker({ id, value, onChange, past }: { id: string; value: s
   const [open, setOpen] = useState(false)
   const selected = value ? toDate(value) : undefined
   return (
-    <div className="flex items-center gap-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger id={id} type="button"
-          className={buttonVariants({ variant: 'outline', className: `${big} w-full max-w-xs justify-start rounded-lg px-3 font-normal` })}>
-          <CalendarIcon className="text-muted-foreground" />
-          {selected ? longDate.format(selected) : <span className="text-muted-foreground">Pick a date</span>}
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={selected}
-            defaultMonth={selected}
-            onSelect={(d) => { onChange(d ? toIso(d) : ''); setOpen(false) }}
-            disabled={past ? { after: new Date() } : { before: new Date() }}
-            {...(past && { captionLayout: 'dropdown' as const, startMonth: new Date(1920, 0), endMonth: new Date() })}
-            weekStartsOn={1}
-            autoFocus
-          />
-        </PopoverContent>
-      </Popover>
-      {value && (
-        <Button type="button" variant="ghost" size="icon-lg" aria-label="Clear date" onClick={() => onChange('')}>
-          <XIcon />
-        </Button>
-      )}
+    // Clear button sits inside the field (pr-11 keeps the date clear of it), so it never overflows a narrow card.
+    <div className="relative w-full max-w-xs">
+      <div className='flex items-center'>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger id={id} type="button"
+            className={buttonVariants({ variant: 'outline', className: `${big} w-full justify-start px-3 pr-11 font-normal` })}>
+            <CalendarIcon className="text-muted-foreground" />
+            {selected ? longDate.format(selected) : <span className="text-muted-foreground">Pick a date</span>}
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={selected}
+              defaultMonth={selected}
+              onSelect={(d) => { onChange(d ? toIso(d) : ''); setOpen(false) }}
+              disabled={past ? { after: new Date() } : { before: new Date() }}
+              {...(past && { captionLayout: 'dropdown' as const, startMonth: new Date(1920, 0), endMonth: new Date() })}
+              weekStartsOn={1}
+              autoFocus
+            />
+          </PopoverContent>
+        </Popover>
+        {value && (
+          <Button type="button" variant="ghost" size="icon-lg" aria-label="Clear date" onClick={() => onChange('')} className="absolute right-1">
+            <XIcon />
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

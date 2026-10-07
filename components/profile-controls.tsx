@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useActionState, useState, useTransition } from 'react'
 import { deleteAccount, inviteToWishy, type Result, saveProfile } from '@/app/(app)/actions'
 import { DatePicker } from '@/components/date-picker'
+import { CURRENCIES } from '@/lib/currency'
 import { notify } from '@/components/notify'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -13,13 +14,14 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
 const big = 'h-11 text-base'
 const card = 'space-y-5 rounded-2xl border bg-card p-6 sm:p-8'
 const optional = <span className="font-normal text-muted-foreground">(optional)</span>
 
-export type Profile = { name: string; email: string; birthday: string; clothing: string; shoe: string; likes: string; avoid: string }
+export type Profile = { name: string; email: string; birthday: string; clothing: string; shoe: string; likes: string; avoid: string; currency: string }
 
 // Toasts on success; errors stay next to the form.
 function useSaving(action: (prev: Result, form: FormData) => Promise<Result>) {
@@ -53,6 +55,18 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           <DatePicker id="birthday" value={birthday} onChange={setBirthday} past />
           <FieldDescription>Shown to your family on the lists you share.</FieldDescription>
         </Field>
+        <Field>
+          <FieldLabel htmlFor="currency">Currency</FieldLabel>
+          <Select name="currency" defaultValue={profile.currency} items={CURRENCIES}>
+            <SelectTrigger id="currency" className="h-11! w-full max-w-xs bg-card text-base">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(CURRENCIES).map(([code, label]) => <SelectItem key={code} value={code}>{label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <FieldDescription>Prices fetched from a link are converted to this. Wishes you already saved keep their currency.</FieldDescription>
+        </Field>
       </section>
 
       <section className={card}>
@@ -81,8 +95,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       </section>
 
       <FieldError>{state?.error}</FieldError>
-      <div className="flex justify-end">
-        <Button type="submit" disabled={saving} className={`${big} rounded-xl px-6`}>{saving ? 'Saving…' : 'Save changes'}</Button>
+      <div className="flex justify-end ">
+        <Button type="submit" disabled={saving} className={`${big} w-full px-6 sm:w-auto`}>{saving ? 'Saving…' : 'Save changes'}</Button>
       </div>
     </form>
   )
@@ -97,7 +111,7 @@ export function InviteDialog() {
   }, null)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className={`${big} mt-5 w-full rounded-xl bg-brand text-brand-foreground hover:bg-brand/85`} />}>
+      <DialogTrigger render={<Button className={`${big} mt-5 w-full bg-brand text-brand-foreground hover:bg-brand/85`} />}>
         Invite someone
       </DialogTrigger>
       <DialogContent>
@@ -130,7 +144,7 @@ export function DeleteAccount() {
   })
   return (
     <AlertDialog>
-      <AlertDialogTrigger render={<Button variant="outline" className={`${big} w-full rounded-xl border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive`} />}>
+      <AlertDialogTrigger render={<Button variant="outline" className={`${big} w-full border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive`} />}>
         Delete account
       </AlertDialogTrigger>
       <AlertDialogContent>

@@ -24,9 +24,11 @@ const empty: Values = { title: '', store: '', url: '', price: '', priority: 2, n
 const priorities = [[1, 'Nice to have'], [2, 'Would love'], [3, 'Most wanted']] as const
 const big = 'h-11 text-base'
 
-export function WishForm({ lists, listId, wish }: {
+// currency: what the price is saved in. Your profile's for a new wish, the wish's own when editing.
+export function WishForm({ lists, listId, currency, wish }: {
   lists: { id: string; title: string }[]
   listId: string
+  currency: string
   wish?: Partial<Values> & { id: string }
 }) {
   const [v, setV] = useState<Values>({ ...empty, ...wish })
@@ -42,32 +44,34 @@ export function WishForm({ lists, listId, wish }: {
 
   const fetchFromLink = () => startFetch(async () => {
     setFetchError(undefined)
-    const r = await fetchDetails(v.url)
+    const r = await fetchDetails(v.url, currency)
     if ('error' in r) return setFetchError(r.error)
     setV((cur) => ({
       ...cur,
       title: r.title || cur.title, store: r.store || cur.store,
       price: r.price || cur.price, image_url: r.imageUrl || cur.image_url,
     }))
+    if (r.priceNote) toast.info(r.priceNote)
     if (r.title || r.price || r.imageUrl) toast.success('Filled in from the link. Check it looks right.')
     else toast.warning('That page didn’t say much. Type the details in below.')
   })
 
   const price = parsePrice(v.price)
-  const preview: CardWish = { ...v, url: null, price: price === null || Number.isNaN(price) ? null : String(price), note: v.note || null, image_url: v.image_url || null, store: v.store || null }
+  const preview: CardWish = { ...v, currency, url: null, price: price === null || Number.isNaN(price) ? null : String(price), note: v.note || null, image_url: v.image_url || null, store: v.store || null }
 
   return (
     <div className="mt-8 grid items-start gap-10 lg:grid-cols-[1fr_20rem]">
       <form action={formAction} className="space-y-6 rounded-2xl border bg-card p-6 sm:p-8">
         {wish && <input type="hidden" name="id" value={wish.id} />}
         <input type="hidden" name="imageUrl" value={v.image_url} />
+        <input type="hidden" name="currency" value={currency} />
 
         <div className="rounded-xl bg-secondary p-5">
           <FieldLabel htmlFor="url">Paste a link</FieldLabel>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row">
             <Input id="url" name="url" type="url" placeholder="https://…" value={v.url} onChange={set('url')} className={`${big} bg-card`} />
             <Button type="button" onClick={fetchFromLink} disabled={!/^https?:\/\/./.test(v.url) || fetching}
-              className={`${big} rounded-xl bg-foreground px-5 text-background hover:bg-foreground/85`}>
+              className={`${big} bg-foreground px-5 text-background hover:bg-foreground/85`}>
               {fetching ? <><Orb state="searching" size={20} onInverse aria-hidden /> Fetching…</> : 'Fetch details'}
             </Button>
           </div>
@@ -82,8 +86,8 @@ export function WishForm({ lists, listId, wish }: {
 
         <div className="grid gap-6 sm:grid-cols-[1fr_1.5fr]">
           <Field>
-            <FieldLabel htmlFor="price">Price</FieldLabel>
-            <Input id="price" name="price" inputMode="decimal" placeholder="649 kr." value={v.price} onChange={set('price')} className={big} />
+            <FieldLabel htmlFor="price">Price <span className="font-normal text-muted-foreground">({currency})</span></FieldLabel>
+            <Input id="price" name="price" inputMode="decimal" placeholder="649" value={v.price} onChange={set('price')} className={big} />
           </Field>
           <Field>
             <FieldLabel htmlFor="store">Where to buy it</FieldLabel>
@@ -107,7 +111,7 @@ export function WishForm({ lists, listId, wish }: {
           <legend className="mb-2 text-sm font-medium">How much do you want it?</legend>
           <div className="flex flex-wrap gap-2">
             {priorities.map(([value, label]) => (
-              <label key={value} className="cursor-pointer rounded-full border px-5 py-2.5 font-medium transition-colors hover:bg-accent has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
+              <label key={value} className="cursor-pointer rounded-lg border px-5 py-2.5 font-medium transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
                 <input type="radio" name="priority" value={value} checked={v.priority === value}
                   onChange={() => setV({ ...v, priority: value })} className="sr-only" />
                 {label}
@@ -125,7 +129,7 @@ export function WishForm({ lists, listId, wish }: {
         <div className="flex flex-wrap items-center justify-end gap-3">
           {wish && <DeleteWish id={wish.id} title={v.title} />}
           <Link href={`/lists/${listId}`} className={buttonVariants({ variant: 'ghost', className: big })}>Cancel</Link>
-          <Button type="submit" disabled={saving} className={`${big} rounded-xl px-6`}>Save wish</Button>
+          <Button type="submit" disabled={saving} className={`${big} px-6`}>Save wish</Button>
         </div>
       </form>
 

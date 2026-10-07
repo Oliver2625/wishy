@@ -53,8 +53,9 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
             </h3>
             <ul className="divide-y border-t">
               {people.map((p) => (
-                <li key={p.email} className="flex items-center gap-4 py-3">
-                  <Avatar name={p.name ?? p.email} className="size-11" />
+                <li key={p.email} className="flex items-center gap-2 py-3 sm:gap-4">
+                  {/* No avatar on phones: the name and email get the room and truncate behind the controls */}
+                  <Avatar name={p.name ?? p.email} className="hidden size-11 sm:flex" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold">{p.name ?? 'Not signed in yet'}</div>
                     <div className="truncate text-sm text-muted-foreground">{p.email}</div>
@@ -86,7 +87,7 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
           </section>
         </div>
 
-        <aside className="rounded-2xl bg-foreground py-8 px-10 text-background">
+        <aside className="rounded-2xl bg-foreground p-6 text-background sm:py-8 sm:px-10">
           <h2 className="text-2xl font-bold">How sharing works</h2>
           <ol className="mt-6 space-y-6">
             {steps.map(([title, body], i) => (

@@ -10,7 +10,7 @@ export default async function ReservedPage() {
   if (!me) return null
 
   const wishes = (await sql`
-    select w.id, w.title, w.store, w.url, w.price, w.priority, w.note, w.image_url,
+    select w.id, w.title, w.store, w.url, w.price, w.currency, w.priority, w.note, w.image_url,
            l.id as list_id, l.title as list_title, coalesce(nullif(u.name, ''), split_part(u.email, '@', 1)) as owner_name
     from wishes w join wishlists l on l.id = w.wishlist_id join neon_auth."user" u on u.id = l.owner_id
     where w.reserved_by = ${me.id} order by owner_name, w.created_at`) as (CardWish & { id: string; list_id: string; list_title: string; owner_name: string })[]

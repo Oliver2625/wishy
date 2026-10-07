@@ -23,7 +23,7 @@ export function CopyLink({ url }: { url: string }) {
       <Input readOnly value={url} aria-label="Share link" className="h-11 bg-secondary text-base" onFocus={(e) => e.currentTarget.select()} />
       <Button
         type="button"
-        className="h-11 rounded-xl px-5 text-base"
+        className="h-11 px-5 text-base"
         onClick={copy}
       >
         <CopyIcon /> Copy link
@@ -43,7 +43,7 @@ export function InviteForm({ action }: { action: (prev: Result, form: FormData) 
     <form action={formAction}>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Input name="email" type="email" required placeholder="name@example.com" aria-label="Email" className="h-11 text-base" />
-        <Button type="submit" variant="outline" disabled={pending} className="h-11 rounded-xl px-5 text-base">Add person</Button>
+        <Button type="submit" variant="outline" disabled={pending} className="h-11 px-5 text-base">Add person</Button>
       </div>
       {state?.error && <p role="alert" className="mt-2 text-sm text-destructive">{state.error}</p>}
     </form>
@@ -71,7 +71,7 @@ export function RoleSelect({ action, role, label }: { action: (form: FormData) =
   }
   return (
     <Select value={value} items={ROLES} onValueChange={save} disabled={pending}>
-      <SelectTrigger aria-label={label} className="h-11! min-w-36 bg-card text-base">
+      <SelectTrigger aria-label={label} className="h-11! bg-card text-base sm:min-w-36">
         <SelectValue />
       </SelectTrigger>
       <SelectContent align="end">

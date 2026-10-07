@@ -30,6 +30,9 @@ export function parseProduct(html: string, pageUrl: string) {
     title: meta('og:title') ?? decode(html.match(/<title[^>]*>([^<]*)/i)?.[1] ?? ''),
     price: meta('product:price:amount') ?? meta('og:price:amount') ?? meta('price')
       ?? html.match(/"price"\s*:\s*"?(\d[\d.,]*)/)?.[1] ?? '',
+    // ISO code like "USD", or '' when the page doesn't say (then the price is taken as-is).
+    currency: (meta('product:price:currency') ?? meta('og:price:currency') ?? meta('priceCurrency')
+      ?? html.match(/"priceCurrency"\s*:\s*"([A-Za-z]{3})"/)?.[1] ?? '').toUpperCase(),
     store: meta('og:site_name') ?? new URL(pageUrl).hostname.replace(/^www\./, ''),
     imageUrl: imageUrl && /^https?:$/.test(imageUrl.protocol) ? imageUrl.href : '',
   }

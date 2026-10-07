@@ -17,7 +17,8 @@ async function Sidebar({ me, activeId }: { me: Member; activeId?: string }) {
   const item = 'flex items-center gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-accent aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-primary-foreground'
 
   return (
-    <aside className="space-y-8">
+    // Below the content on phones, so the list itself comes first.
+    <aside className="order-last space-y-8 lg:order-0">
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-widest text-muted-foreground uppercase">My lists</h2>
         <ul className="space-y-1">
