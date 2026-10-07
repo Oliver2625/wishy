@@ -24,12 +24,16 @@ export function parseProduct(html: string, pageUrl: string) {
     const v = tag?.match(/content=["']([^"']*)["']/i)?.[1]
     return v ? decode(v) : undefined
   }
+  // schema.org JSON-LD carries the shop's real price (109.99). Other inline JSON can be in cents
+  // (Shopify's product object says 10999), so the page-wide match is only the last resort.
+  const ld = [...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]).join('\n')
+  // Separators only between digits, so JSON's trailing comma ("price": 109.99,) isn't read as a decimal mark.
+  const jsonPrice = (s: string) => s.match(/"price"\s*:\s*"?(\d+(?:[.,]\d+)*)/)?.[1]
   const image = meta('og:image') ?? meta('twitter:image')
   const imageUrl = image ? new URL(image, pageUrl) : undefined
   return {
     title: meta('og:title') ?? decode(html.match(/<title[^>]*>([^<]*)/i)?.[1] ?? ''),
-    price: meta('product:price:amount') ?? meta('og:price:amount') ?? meta('price')
-      ?? html.match(/"price"\s*:\s*"?(\d[\d.,]*)/)?.[1] ?? '',
+    price: meta('product:price:amount') ?? meta('og:price:amount') ?? meta('price') ?? jsonPrice(ld) ?? jsonPrice(html) ?? '',
     // ISO code like "USD", or '' when the page doesn't say (then the price is taken as-is).
     currency: (meta('product:price:currency') ?? meta('og:price:currency') ?? meta('priceCurrency')
       ?? html.match(/"priceCurrency"\s*:\s*"([A-Za-z]{3})"/)?.[1] ?? '').toUpperCase(),
