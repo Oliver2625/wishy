@@ -8,6 +8,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       className="toaster group"
+      // Above the phone tab bar (h-16) instead of on top of it
+      mobileOffset={{ bottom: "5rem" }}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />

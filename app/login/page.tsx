@@ -1,6 +1,5 @@
 'use client'
 
-import { RefreshCwIcon } from 'lucide-react'
 import { useActionState } from 'react'
 import { ViewTransition } from '@/lib/view-transition'
 import { Button } from '@/components/ui/button'
@@ -12,6 +11,7 @@ import { Logo } from '@/components/logo'
 import { Orb } from '@/components/orb'
 import { login } from './actions'
 
+const big = 'h-11 text-base'
 const slots = '*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl'
 
 export default function LoginPage() {
@@ -22,22 +22,22 @@ export default function LoginPage() {
       <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
         <Logo className="size-16" />
         <ViewTransition key="email" enter="slide-up" exit="fade-out" default="none">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-sm">
           <CardHeader>
-            <CardTitle>Sign in to Wishy</CardTitle>
-            <CardDescription>We&apos;ll email you a sign-in code.</CardDescription>
+            <CardTitle className="text-xl font-semibold">Sign in to Wishy</CardTitle>
+            <CardDescription>Get a sign-in code by email.</CardDescription>
           </CardHeader>
           <form action={action}>
             <CardContent>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" name="email" type="email" required autoComplete="email" />
+                <Input id="email" name="email" type="email" required autoComplete="email" placeholder="name@example.com" className={big} />
                 <FieldError>{state?.error}</FieldError>
               </Field>
             </CardContent>
             <CardFooter className="mt-4">
-              <Button type="submit" className="w-full" disabled={pending}>
-                {pending && <Orb state="connecting" size={20} onInverse aria-hidden />} Send code
+              <Button type="submit" className={`${big} w-full`} disabled={pending}>
+                {pending ? <><Orb state="connecting" size={20} onInverse aria-hidden /> Sending…</> : 'Send code'}
               </Button>
             </CardFooter>
           </form>
@@ -51,24 +51,18 @@ export default function LoginPage() {
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
       <Logo className="size-16" />
       <ViewTransition key="code" enter="slide-up" exit="fade-out" default="none">
-      <Card className="w-full max-w-[20rem]">
+      <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className='text-xl'>Verify your login</CardTitle>
+          <CardTitle className="text-xl font-semibold">Check your email</CardTitle>
           <CardDescription>
-            Enter the verification code we sent to your email address: <span className="font-bold">{state.email}</span>.
+            Enter the 6-digit code sent to <span className="font-semibold text-foreground">{state.email}</span>.
           </CardDescription>
         </CardHeader>
         <form action={action}>
           <input type="hidden" name="email" value={state.email} />
           <CardContent>
             <Field>
-              <div className="flex items-center justify-between">
-                <FieldLabel htmlFor="otp">Verification code</FieldLabel>
-                <Button type="submit" name="intent" value="resend" formNoValidate variant="outline" size="xs" disabled={pending}>
-                  <RefreshCwIcon />
-                  Resend Code
-                </Button>
-              </div>
+              <FieldLabel htmlFor="otp">Sign-in code</FieldLabel>
               <InputOTP maxLength={6} id="otp" name="otp" required autoFocus aria-invalid={!!state.error} containerClassName="justify-center">
                 <InputOTPGroup className={slots}>
                   <InputOTPSlot index={0} />
@@ -88,9 +82,12 @@ export default function LoginPage() {
               <FieldError>{state.error}</FieldError>
             </Field>
           </CardContent>
-          <CardFooter className="mt-4">
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending && <Orb state="connecting" size={20} onInverse aria-hidden />} Verify
+          <CardFooter className="mt-4 flex-col gap-2">
+            <Button type="submit" className={`${big} w-full`} disabled={pending}>
+              {pending ? <><Orb state="connecting" size={20} onInverse aria-hidden /> Signing in…</> : 'Sign in'}
+            </Button>
+            <Button type="submit" name="intent" value="resend" formNoValidate variant="ghost" className={`${big} w-full`} disabled={pending}>
+              Send a new code
             </Button>
           </CardFooter>
         </form>

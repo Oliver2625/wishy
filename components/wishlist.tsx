@@ -56,7 +56,7 @@ async function Sidebar({ me, activeId }: { me: Member; activeId?: string }) {
 
 export function BackLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="group inline-flex items-center gap-1 font-medium text-primary hover:underline">
+    <Link href={href} className="group -my-2.5 inline-flex items-center gap-1 py-2.5 font-medium text-primary hover:underline">
       <ChevronLeftIcon className="size-5 transition-transform motion-safe:group-hover:-translate-x-0.5" /> {children}
     </Link>
   )

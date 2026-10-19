@@ -8,11 +8,13 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
 });
 
-// Runs in <head> before paint: saved choice, else the OS setting. No flash.
-const themeScript = `try{document.documentElement.classList.toggle('dark',localStorage.theme==='dark'||(!localStorage.theme&&matchMedia('(prefers-color-scheme: dark)').matches))}catch(e){}`;
+// Runs in <head> before paint, so no flash. localStorage.theme ('light' | 'dark', set in Profile) wins;
+// unset follows the OS appearance, also when it changes while the page is open.
+// A `dark` class (not just the media query) because thinking-orbs reads it.
+const themeScript = `try{const m=matchMedia('(prefers-color-scheme: dark)'),s=()=>{const t=localStorage.theme;document.documentElement.classList.toggle('dark',t?t==='dark':m.matches)};s();m.addEventListener('change',s)}catch(e){}`;
 
 export const metadata: Metadata = {
-  title: "Wishy",
+  title: { template: "%s · Wishy", default: "Wishy" },
   description: "Wishlists for birthdays, Christmas and everything in between",
 };
 

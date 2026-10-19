@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGr
 export function CopyLink({ url }: { url: string }) {
   const copy = () => navigator.clipboard.writeText(url).then(
     () => toast.success('Link copied'),
-    () => toast.error('Couldn’t copy. Select the link and copy it yourself.'),
+    () => notify({ error: 'Couldn’t copy. Select the link and copy it yourself.' }),
   )
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
@@ -76,7 +76,7 @@ export function RoleSelect({ action, role, label }: { action: (form: FormData) =
       </SelectTrigger>
       <SelectContent align="end">
         <SelectGroup>
-          <SelectLabel>Settings</SelectLabel>
+          <SelectLabel>Access</SelectLabel>
           <SelectItem value="reserve">Can reserve</SelectItem>
           <SelectItem value="view">Can view</SelectItem>
         </SelectGroup>
@@ -94,7 +94,7 @@ export function RemoveAccess({ action, name }: { action: (form: FormData) => Pro
   }
   return (
     <AlertDialog>
-      <AlertDialogTrigger render={<Button variant="ghost" size="icon-lg" aria-label={`Remove access for ${name}`} className="text-destructive" />}>
+      <AlertDialogTrigger render={<Button variant="ghost" aria-label={`Remove access for ${name}`} className="size-11 text-destructive" />}>
         <UserMinusIcon />
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -105,7 +105,7 @@ export function RemoveAccess({ action, name }: { action: (form: FormData) => Pro
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Keep access</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction variant="destructive" disabled={pending} onClick={remove}>
             {pending ? 'Removing…' : 'Remove access'}
           </AlertDialogAction>

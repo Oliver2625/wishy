@@ -25,6 +25,7 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-field: var(--field);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -51,6 +52,7 @@
 :root {
   /* Palette: celadon #A1CCA5, muted teal #8FB996 / #709775, hunter #415D43, carbon #111D13 */
   --radius: 0.75rem;
+  color-scheme: light;
   --brand: #a1cca5;
   --brand-foreground: #111d13;
   --background: #eff5ee;
@@ -64,12 +66,13 @@
   --secondary: #eaf2e9;
   --secondary-foreground: #2c412e;
   --muted: #dceadb;
-  --muted-foreground: #52705a;
+  --muted-foreground: #4b6853;
   --accent: #dceadb;
   --accent-foreground: #111d13;
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.505 0.213 27.518);
   --border: #d3e3d1;
   --input: #c5d9c3;
+  --field: #758f77; /* text field borders: 3:1 on card, background and secondary */
   --ring: #709775;
   --chart-1: #a1cca5;
   --chart-2: #8fb996;
@@ -87,6 +90,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --brand: #a1cca5;
   --brand-foreground: #111d13;
   --background: #111d13;
@@ -106,6 +110,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: #2a3d2c;
   --input: #344b36;
+  --field: #55755a; /* 3:1 on card */
   --ring: #709775;
   --chart-1: #a1cca5;
   --chart-2: #8fb996;
@@ -122,6 +127,24 @@
   --sidebar-ring: #709775;
 }
 
+/* Increase Contrast (OS setting): stronger secondary text and edges. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted-foreground: #2c412e;
+    --border: #7f9a80;
+    --input: #7f9a80;
+    --field: #4b6853;
+    --ring: #415d43;
+  }
+  .dark {
+    --muted-foreground: #c3dcc5;
+    --border: #4f6e52;
+    --input: #4f6e52;
+    --field: #8fb996;
+    --ring: #a1cca5;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -129,6 +152,11 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Links have no ring of their own (buttons and fields do), so give keyboard focus a visible one. */
+  a:focus-visible {
+    @apply rounded-sm outline-2 outline-offset-2 outline-ring;
   }
 }
 /* ── Motion ──────────────────────────────────────────────────────────────────

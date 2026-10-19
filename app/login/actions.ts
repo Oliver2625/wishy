@@ -7,13 +7,16 @@ import { auth, isInvited } from '@/lib/auth'
 import { sql } from '@/lib/db'
 
 // At most CODES_PER_HOUR sign-in codes per email. Each code allows only a few guesses (Neon Auth),
-// so this caps both inbox flooding and code guessing. Check and record happen in one statement.
+// so this caps both inbox flooding and code guessing. A per-email lock serializes check and record:
+// without it, parallel requests each count from their own snapshot and all pass.
 const CODES_PER_HOUR = 5
 async function allowCodeSend(email: string) {
-  const rows = await sql`
-    insert into otp_sends (email) select ${email}
-    where (select count(*) from otp_sends where email = ${email} and sent_at > now() - interval '1 hour') < ${CODES_PER_HOUR}
-    returning 1`
+  const [, rows] = await sql.transaction([
+    sql`select pg_advisory_xact_lock(hashtext(${email}))`,
+    sql`insert into otp_sends (email) select ${email}
+        where (select count(*) from otp_sends where email = ${email} and sent_at > now() - interval '1 hour') < ${CODES_PER_HOUR}
+        returning 1`,
+  ])
   await sql`delete from otp_sends where sent_at < now() - interval '1 day'`
   return rows.length > 0
 }

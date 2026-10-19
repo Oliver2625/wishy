@@ -1,6 +1,8 @@
 // Currencies a profile can pick. All are on the ECB list, so toCurrency can convert between any two.
 export const CURRENCIES = { DKK: 'Danish krone (kr.)', SEK: 'Swedish krona', NOK: 'Norwegian krone', EUR: 'Euro (€)', GBP: 'British pound (£)', USD: 'US dollar ($)' }
 export type Currency = keyof typeof CURRENCIES
+// The list filter's "Under …" limit: about the same amount in each currency.
+export const BUDGET: Record<Currency, number> = { DKK: 300, SEK: 450, NOK: 450, EUR: 40, GBP: 35, USD: 45 }
 export const isCurrency = (c: unknown): c is Currency => typeof c === 'string' && Object.hasOwn(CURRENCIES, c)
 
 export const formatPrice = (p: string | number | null, currency = 'DKK') =>

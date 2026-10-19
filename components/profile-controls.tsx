@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useActionState, useState, useTransition } from 'react'
+import { useActionState, useState, useSyncExternalStore, useTransition } from 'react'
 import { deleteAccount, inviteToWishy, type Result, saveProfile } from '@/app/(app)/actions'
 import { DatePicker } from '@/components/date-picker'
 import { CURRENCIES } from '@/lib/currency'
@@ -46,7 +46,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         </Field>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" value={profile.email} readOnly disabled className={big} />
+          <Input id="email" value={profile.email} readOnly className={`${big} bg-muted`} />
           <FieldDescription>You sign in with this. Ask the admin if it needs to change.</FieldDescription>
         </Field>
         <Field>
@@ -111,7 +111,7 @@ export function InviteDialog() {
   }, null)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className={`${big} mt-5 w-full bg-brand text-brand-foreground hover:bg-brand/85`} />}>
+      <DialogTrigger render={<Button variant="outline" className={`${big} mt-5 w-full`} />}>
         Invite someone
       </DialogTrigger>
       <DialogContent>
@@ -156,12 +156,46 @@ export function DeleteAccount() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Keep my account</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction variant="destructive" disabled={pending} onClick={remove}>
             {pending ? 'Deleting…' : 'Delete account'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  )
+}
+
+// Appearance, per device (localStorage, read before paint by the script in app/layout.tsx).
+// Defaults to matching the device; Light or Dark overrides it on this browser only.
+const THEMES = { system: 'Match device', light: 'Light', dark: 'Dark' }
+type Theme = keyof typeof THEMES
+const readTheme = (): Theme => { try { return localStorage.theme ?? 'system' } catch { return 'system' } }
+const onThemeChange = (cb: () => void) => {
+  addEventListener('storage', cb)
+  addEventListener('themechange', cb)
+  return () => { removeEventListener('storage', cb); removeEventListener('themechange', cb) }
+}
+
+export function AppearancePicker() {
+  const theme = useSyncExternalStore(onThemeChange, readTheme, () => 'system' as Theme)
+  const choose = (t: Theme) => {
+    try { if (t === 'system') localStorage.removeItem('theme'); else localStorage.setItem('theme', t) } catch {}
+    document.documentElement.classList.toggle('dark', t === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : t === 'dark')
+    dispatchEvent(new Event('themechange'))
+  }
+  return (
+    <fieldset>
+      <legend className="text-lg font-semibold">Appearance</legend>
+      <p className="text-sm text-muted-foreground">Saved on this device.</p>
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {(Object.entries(THEMES) as [Theme, string][]).map(([value, label]) => (
+          <label key={value} className="flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-2 text-center text-sm font-medium transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50">
+            <input type="radio" name="theme" value={value} checked={theme === value} onChange={() => choose(value)} className="sr-only" />
+            {label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   )
 }

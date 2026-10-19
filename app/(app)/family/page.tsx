@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Avatar } from '@/components/wish-card'
 import { getMember } from '@/lib/auth'
 import { sharedWithMe } from '@/lib/lists'
+
+export const metadata: Metadata = { title: 'Family' }
 
 export default async function FamilyPage() {
   const me = await getMember()
@@ -11,7 +14,7 @@ export default async function FamilyPage() {
   const people = Map.groupBy(lists, (l) => l.owner_id)
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
       <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Family</h1>
       <p className="mt-2 text-muted-foreground">Lists people have shared with you.</p>
 
@@ -21,7 +24,7 @@ export default async function FamilyPage() {
             <h2 className="flex items-center gap-3 text-xl font-semibold">
               <Avatar name={theirs[0].name} className="size-10" /> {theirs[0].name}
             </h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {theirs.map((l) => (
                 <Link key={l.id} href={`/family/${l.id}`} className="rounded-2xl border bg-card p-5 transition-[border-color,box-shadow,translate] duration-200 hover:border-ring hover:shadow-md hover:shadow-primary/5 motion-safe:hover:-translate-y-0.5">
                   <h3 className="text-lg font-semibold">{l.title}</h3>
@@ -35,7 +38,7 @@ export default async function FamilyPage() {
         ))}
         {!lists.length && (
           <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-            Nobody has shared a list with you yet.
+            Nobody has shared a list with you yet. Ask your family to send you the link from their list&apos;s Share page.
           </p>
         )}
       </div>

@@ -1,9 +1,12 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { WishForm } from '@/components/wish-form'
 import { BackLink } from '@/components/wishlist'
 import { getMember } from '@/lib/auth'
 import { sql } from '@/lib/db'
 import { myLists } from '@/lib/lists'
+
+export const metadata: Metadata = { title: 'Edit wish' }
 
 export default async function EditWishPage({ params }: PageProps<'/wishes/[id]/edit'>) {
   const me = await getMember()
@@ -21,7 +24,7 @@ export default async function EditWishPage({ params }: PageProps<'/wishes/[id]/e
   if (!wish) notFound()
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 sm:py-12">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
       <BackLink href={`/lists/${wish.wishlist_id}`}>Back to {wish.list_title}</BackLink>
       <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">Edit wish</h1>
       <WishForm

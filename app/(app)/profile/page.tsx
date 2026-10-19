@@ -1,10 +1,13 @@
+import type { Metadata } from 'next'
 import { logout } from '@/app/login/actions'
-import { DeleteAccount, InviteDialog, ProfileForm } from '@/components/profile-controls'
+import { AppearancePicker, DeleteAccount, InviteDialog, ProfileForm } from '@/components/profile-controls'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/wish-card'
 import { getMember, isAdmin } from '@/lib/auth'
 import { sql } from '@/lib/db'
 import { family } from '@/lib/lists'
+
+export const metadata: Metadata = { title: 'Profile' }
 
 export default async function ProfilePage() {
   const me = await getMember()
@@ -17,7 +20,7 @@ export default async function ProfilePage() {
   const admin = isAdmin(me.email)
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 sm:py-12">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
       <div className="flex items-center gap-5">
         <Avatar name={me.name} className="size-16 sm:size-20" />
         <div className="min-w-0">
@@ -46,10 +49,14 @@ export default async function ProfilePage() {
             {admin && <InviteDialog />}
           </section>
 
+          <section className="rounded-2xl border bg-card p-6">
+            <AppearancePicker />
+          </section>
+
           <section className="space-y-3 rounded-2xl border bg-card p-6">
             <h2 className="text-lg font-semibold">Account</h2>
             <form action={logout}>
-              <Button type="submit" variant="outline" className="h-11 w-full text-base">Log out</Button>
+              <Button type="submit" variant="outline" className="h-11 w-full text-base">Sign out</Button>
             </form>
             {admin ? (
               <p className="text-sm text-muted-foreground">You&apos;re the admin, so this account can&apos;t be deleted here.</p>

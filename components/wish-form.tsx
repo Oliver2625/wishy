@@ -70,8 +70,7 @@ export function WishForm({ lists, listId, currency, wish }: {
           <FieldLabel htmlFor="url">Paste a link</FieldLabel>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row">
             <Input id="url" name="url" type="url" placeholder="https://…" value={v.url} onChange={set('url')} className={`${big} bg-card`} />
-            <Button type="button" onClick={fetchFromLink} disabled={!/^https?:\/\/./.test(v.url) || fetching}
-              className={`${big} bg-foreground px-5 text-background hover:bg-foreground/85`}>
+            <Button type="button" onClick={fetchFromLink} disabled={!/^https?:\/\/./.test(v.url) || fetching} className={`${big} px-5`}>
               {fetching ? <><Orb state="searching" size={20} onInverse aria-hidden /> Fetching…</> : 'Fetch details'}
             </Button>
           </div>
@@ -129,14 +128,13 @@ export function WishForm({ lists, listId, currency, wish }: {
         <div className="flex flex-wrap items-center justify-end gap-3">
           {wish && <DeleteWish id={wish.id} title={v.title} />}
           <Link href={`/lists/${listId}`} className={buttonVariants({ variant: 'ghost', className: big })}>Cancel</Link>
-          <Button type="submit" disabled={saving} className={`${big} px-6`}>Save wish</Button>
+          <Button type="submit" disabled={saving} className={`${big} px-6`}>{saving ? 'Saving…' : 'Save wish'}</Button>
         </div>
       </form>
 
       <aside>
         <h2 className="mb-3 text-sm font-semibold tracking-widest text-muted-foreground uppercase">How it will look</h2>
         <WishCard wish={preview} />
-        <p className="mt-3 text-sm text-muted-foreground">The preview updates while you type.</p>
       </aside>
     </div>
   )
@@ -158,7 +156,7 @@ function DeleteWish({ id, title }: { id: string; title: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel type="button">Keep it</AlertDialogCancel>
+          <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
           <AlertDialogAction type="button" variant="destructive" disabled={deleting} onClick={() => startDelete(async () => {
             const r = await deleteWish(id)
             notify(r)

@@ -19,20 +19,42 @@ const decode = (s: string) =>
 
 // Name, price, store and photo from a product page's Open Graph / schema.org tags.
 export function parseProduct(html: string, pageUrl: string) {
+  // Tags are cut out with indexOf, not by regexes over the whole page: on a page of unclosed "<meta"
+  // those regexes backtrack over the rest of the input from every opener (quadratic CPU on 1 MB).
+  // Each search resumes after the previous tag, so the pieces never overlap and total at most the page.
+  const lower = html.toLowerCase()
+  const tags = (open: string, close: string) => {
+    const out: string[] = []
+    for (let i = lower.indexOf(open); i >= 0; ) {
+      const end = lower.indexOf(close, i)
+      if (end < 0) break
+      out.push(html.slice(i, end + close.length))
+      i = lower.indexOf(open, end + close.length)
+    }
+    return out
+  }
+  const metas = tags('<meta', '>')
   const meta = (key: string) => {
-    const tag = html.match(new RegExp(`<meta[^>]+(?:property|name|itemprop)=["']${key}["'][^>]*>`, 'i'))?.[0]
-    const v = tag?.match(/content=["']([^"']*)["']/i)?.[1]
+    const attr = new RegExp(`(?:property|name|itemprop)=["']${key}["']`, 'i')
+    const v = metas.find((t) => attr.test(t))?.match(/content=["']([^"']*)["']/i)?.[1]
     return v ? decode(v) : undefined
   }
   // schema.org JSON-LD carries the shop's real price (109.99). Other inline JSON can be in cents
   // (Shopify's product object says 10999), so the page-wide match is only the last resort.
-  const ld = [...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]).join('\n')
+  const ld = tags('<script', '</script>')
+    .map((s) => ({ open: s.slice(0, s.indexOf('>') + 1), body: s.slice(s.indexOf('>') + 1, -'</script>'.length) }))
+    .filter((s) => /application\/ld\+json/i.test(s.open))
+    .map((s) => s.body).join('\n')
+  const titleOpen = lower.indexOf('<title')
+  const titleStart = titleOpen < 0 ? -1 : lower.indexOf('>', titleOpen)
+  const titleEnd = titleStart < 0 ? -1 : html.indexOf('<', titleStart + 1)
+  const titleText = titleStart < 0 ? '' : html.slice(titleStart + 1, titleEnd < 0 ? undefined : titleEnd)
   // Separators only between digits, so JSON's trailing comma ("price": 109.99,) isn't read as a decimal mark.
   const jsonPrice = (s: string) => s.match(/"price"\s*:\s*"?(\d+(?:[.,]\d+)*)/)?.[1]
   const image = meta('og:image') ?? meta('twitter:image')
   const imageUrl = image ? new URL(image, pageUrl) : undefined
   return {
-    title: meta('og:title') ?? decode(html.match(/<title[^>]*>([^<]*)/i)?.[1] ?? ''),
+    title: meta('og:title') ?? decode(titleText),
     price: meta('product:price:amount') ?? meta('og:price:amount') ?? meta('price') ?? jsonPrice(ld) ?? jsonPrice(html) ?? '',
     // ISO code like "USD", or '' when the page doesn't say (then the price is taken as-is).
     currency: (meta('product:price:currency') ?? meta('og:price:currency') ?? meta('priceCurrency')

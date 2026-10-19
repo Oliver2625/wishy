@@ -36,16 +36,16 @@ export function MostWanted({ className }: { className?: string }) {
   )
 }
 
-// Grid card (owner view, preview, reserved-by-me).
+// Grid card (owner view, preview, reserved-by-me). No hover lift: only the title link and the buttons are clickable, not the card.
 // index: position in a list, for the staggered entrance. Omit (e.g. the form preview) to skip it.
 export function WishCard({ wish, extra, children, index }: { wish: CardWish; extra?: React.ReactNode; children?: React.ReactNode; index?: number }) {
   return (
     <article
       style={index === undefined ? undefined : stagger(index)}
-      className={cn('group flex flex-col overflow-hidden rounded-2xl border bg-card transition-[translate,box-shadow,border-color] duration-200 hover:border-ring/60 hover:shadow-lg hover:shadow-primary/5 motion-safe:hover:-translate-y-0.5', index !== undefined && enter)}
+      className={cn('flex flex-col overflow-hidden rounded-2xl border bg-card', index !== undefined && enter)}
     >
       <div className="relative">
-        <Photo src={wish.image_url} className="h-44 *:transition-transform *:duration-500 motion-safe:group-hover:*:scale-[1.03]" />
+        <Photo src={wish.image_url} className="h-44" />
         {wish.priority === 3 && <MostWanted className="absolute top-3 left-3" />}
       </div>
       <div className="flex flex-1 flex-col p-5">
@@ -68,7 +68,7 @@ export function WishRow({ wish, children, index }: { wish: CardWish; children?: 
   return (
     <article
       style={index === undefined ? undefined : stagger(index)}
-      className={cn('flex flex-wrap items-start gap-4 rounded-2xl border bg-card p-4 transition-[border-color,box-shadow] duration-200 hover:border-ring/60 hover:shadow-md hover:shadow-primary/5 sm:flex-nowrap sm:items-center sm:gap-5', index !== undefined && enter)}
+      className={cn('flex flex-wrap items-start gap-4 rounded-2xl border bg-card p-4 sm:flex-nowrap sm:items-center sm:gap-5', index !== undefined && enter)}
     >
       <Photo src={wish.image_url} className="size-20 shrink-0 rounded-xl sm:size-24" />
       <div className="min-w-0 flex-1">
@@ -88,6 +88,8 @@ export function WishRow({ wish, children, index }: { wish: CardWish; children?: 
 // Blobatar: a deterministic blob from the name, rendered as a static <img> (no client JS, so fine in server components).
 // Size it with className; size={96} is just the SVG's resolution. alt="": the name is always shown next to it or in the title.
 // background: false drops the blob's circle, for places that frame it themselves (the header).
+// dark:brightness-80: blobatar's colors don't follow our theme and pale discs (e.g. #f6f3ec) glow on the dark
+// page. Dimming the whole image keeps the face's own contrast, which recoloring the disc would not (HIG dark-mode.md).
 export function Avatar({ name, className, background = true }: { name: string; className?: string; background?: boolean }) {
-  return <Blobatar name={name} size={96} background={background && 'circle'} alt="" title={name} className={cn('size-8 shrink-0 rounded-full', className)} />
+  return <Blobatar name={name} size={96} background={background && 'circle'} alt="" title={name} className={cn('size-8 shrink-0 rounded-full dark:brightness-80', className)} />
 }

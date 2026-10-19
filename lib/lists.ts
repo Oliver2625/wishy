@@ -1,4 +1,5 @@
 import 'server-only'
+import { cache } from 'react'
 import { sql } from './db'
 
 export type Role = 'owner' | 'reserve' | 'view'
@@ -12,8 +13,8 @@ export type Wish = {
 
 export const PRIORITIES = { 1: 'Nice to have', 2: 'Would love', 3: 'Most wanted' } as const
 
-// The list plus my role on it, or null if I can't see it.
-export async function getList(id: string, me: Member) {
+// The list plus my role on it, or null if I can't see it. cache(): generateMetadata and the page share one lookup.
+export const getList = cache(async (id: string, me: Member) => {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null
   const [list] = await sql`
     select l.id, l.title, l.owner_id, l.share_code, l.hide_reservations, l.show_reserver,
@@ -24,7 +25,7 @@ export async function getList(id: string, me: Member) {
     left join list_shares s on s.list_id = l.id and s.email = ${me.email.toLowerCase()}
     where l.id = ${id}`
   return list?.role ? (list as typeof list & { role: Role }) : null
-}
+})
 
 // Reservation details are filtered here, server-side, per the list's surprise settings.
 export async function getWishes(list: NonNullable<Awaited<ReturnType<typeof getList>>>, me: Member): Promise<Wish[]> {

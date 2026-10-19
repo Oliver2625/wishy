@@ -1,9 +1,12 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { toggleReserve } from '@/app/(app)/actions'
 import { ActionButton } from '@/components/action-button'
 import { type CardWish, WishCard } from '@/components/wish-card'
 import { getMember } from '@/lib/auth'
 import { sql } from '@/lib/db'
+
+export const metadata: Metadata = { title: 'Reserved by me' }
 
 export default async function ReservedPage() {
   const me = await getMember()
@@ -27,13 +30,13 @@ export default async function ReservedPage() {
                 For {w.owner_name} · {w.list_title}
               </Link>
             }>
-              <ActionButton action={toggleReserve.bind(null, w.id)} variant="outline" className="h-10 px-4">Unreserve</ActionButton>
+              <ActionButton action={toggleReserve.bind(null, w.id)} variant="outline" className="h-11 px-5 text-base">Unreserve</ActionButton>
             </WishCard>
           ))}
         </div>
       ) : (
         <p className="mt-6 rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-          Nothing reserved yet. Open a family member&apos;s list and reserve a wish.
+          Nothing reserved yet. Open a list under <Link href="/family" className="font-medium text-primary underline">Family</Link> and reserve a gift.
         </p>
       )}
     </main>

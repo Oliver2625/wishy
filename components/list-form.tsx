@@ -94,21 +94,24 @@ export function ListForm({ family, list, wishCount = 0 }: {
         <FieldError>{state?.error}</FieldError>
         <div className="flex items-center justify-end gap-3">
           <Link href={back} className={buttonVariants({ variant: 'ghost', className: big })}>Cancel</Link>
-          <Button type="submit" disabled={saving} className={`${big} px-6`}>{list ? 'Save list' : 'Create list'}</Button>
+          <Button type="submit" disabled={saving} className={`${big} px-6`}>
+            {list ? (saving ? 'Saving…' : 'Save list') : (saving ? 'Creating…' : 'Create list')}
+          </Button>
         </div>
       </form>
 
       <aside>
         <h2 className="mb-3 text-sm font-semibold tracking-widest text-muted-foreground uppercase">How it will look</h2>
-        <div className="overflow-hidden rounded-2xl border bg-card">
-          <div className="bg-foreground p-6 text-background">
+        {/* Same header as the page family will see: card surface, not an inverted hero */}
+        <div className="divide-y overflow-hidden rounded-2xl border bg-card">
+          <div className="p-6">
             <span className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground">{OCCASIONS[v.occasion]}</span>
             <h3 className="mt-4 text-3xl font-bold tracking-tight break-words">{v.title || 'Your list'}</h3>
-            <p className="mt-2 opacity-80">
+            <p className="mt-2 text-muted-foreground">
               {[`${wishCount} ${wishCount === 1 ? 'wish' : 'wishes'}`, audience, daysToGo(v.date || null)].filter(Boolean).join(' · ')}
             </p>
           </div>
-          {v.message && <p className="border-b px-6 py-4 text-sm">&ldquo;{v.message}&rdquo;</p>}
+          {v.message && <p className="px-6 py-4 text-sm">&ldquo;{v.message}&rdquo;</p>}
           {!wishCount && (
             <div className="flex flex-col items-center gap-3 p-6 text-center">
               <span className="flex size-14 items-center justify-center rounded-full bg-muted"><GiftIcon className="size-6" /></span>

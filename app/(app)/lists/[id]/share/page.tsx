@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { setShareRole, shareList, updateSurprise } from '@/app/(app)/actions'
@@ -9,11 +10,11 @@ import { sql } from '@/lib/db'
 import { getList } from '@/lib/lists'
 
 const card = 'rounded-2xl border bg-card p-6 sm:p-8'
-const steps = [
-  ['Your family opens the list', 'They see every wish, with price, link and your note.'],
-  ['They reserve a gift', 'A reserved wish is marked as taken for everyone else.'],
-  ['You stay surprised', 'Your own view of the list never shows what is reserved.'],
-]
+export async function generateMetadata({ params }: PageProps<'/lists/[id]/share'>): Promise<Metadata> {
+  const me = await getMember()
+  const list = me && await getList((await params).id, me)
+  return { title: list ? `Share ${list.title}` : undefined }
+}
 
 export default async function SharePage({ params }: PageProps<'/lists/[id]/share'>) {
   const me = await getMember()
@@ -22,8 +23,16 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
   const list = await getList(id, me)
   if (!list || list.role !== 'owner') notFound()
 
+  // The last step tells the truth about this list's surprise setting.
+  const steps = [
+    ['Your family opens the list', 'They see every wish, with price, link and your note.'],
+    ['They reserve a gift', 'A reserved wish is marked as taken for everyone else.'],
+    list.hide_reservations
+      ? ['You stay surprised', 'Your own view of the list never shows what is reserved.']
+      : ['You see what is taken', 'Reservations show on your list. Turn on “Hide reservations from me” to keep it a surprise.'],
+  ]
   const h = await headers()
-  const link = `${h.get('x-forwarded-proto') ?? 'http'}://${h.get('host')}/l/${list.share_code}`
+  const link = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('host')}/l/${list.share_code}`
   const people = await sql`
     select s.email, s.role, coalesce(nullif(u.name, ''), split_part(u.email, '@', 1)) as name
     from list_shares s left join neon_auth."user" u on lower(u.email) = s.email
@@ -64,7 +73,7 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
                   <RemoveAccess action={setShareRole.bind(null, id, p.email)} name={p.name ?? p.email} />
                 </li>
               ))}
-              {!people.length && <li className="py-4 text-muted-foreground">Nobody yet.</li>}
+              {!people.length && <li className="py-4 text-muted-foreground">Nobody yet. Copy the link above, or add someone by email.</li>}
             </ul>
           </section>
 

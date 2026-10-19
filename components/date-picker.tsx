@@ -18,12 +18,12 @@ export function DatePicker({ id, value, onChange, past }: { id: string; value: s
   const [open, setOpen] = useState(false)
   const selected = value ? toDate(value) : undefined
   return (
-    // Clear button sits inside the field (pr-11 keeps the date clear of it), so it never overflows a narrow card.
+    // Clear button sits inside the field (pr-11 keeps the date clear of it), so it never overflows a narrow card. Same 44px as the field.
     <div className="relative w-full max-w-xs">
       <div className='flex items-center'>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger id={id} type="button"
-            className={buttonVariants({ variant: 'outline', className: `${big} w-full justify-start px-3 pr-11 font-normal` })}>
+            className={buttonVariants({ variant: 'outline', className: `${big} w-full justify-start border-field bg-transparent px-3 pr-11 font-normal dark:border-field dark:bg-input/30` })}>
             <CalendarIcon className="text-muted-foreground" />
             {selected ? longDate.format(selected) : <span className="text-muted-foreground">Pick a date</span>}
           </PopoverTrigger>
@@ -41,7 +41,7 @@ export function DatePicker({ id, value, onChange, past }: { id: string; value: s
           </PopoverContent>
         </Popover>
         {value && (
-          <Button type="button" variant="ghost" size="icon-lg" aria-label="Clear date" onClick={() => onChange('')} className="absolute right-1">
+          <Button type="button" variant="ghost" aria-label="Clear date" onClick={() => onChange('')} className="absolute right-0 size-11">
             <XIcon />
           </Button>
         )}
