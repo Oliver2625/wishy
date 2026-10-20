@@ -1,17 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  ArrowUpIcon, BedDoubleIcon, CheckIcon, CookingPotIcon, DicesIcon, GiftIcon, HeadphonesIcon,
-  LinkIcon, ListIcon, SettingsIcon, StarIcon, UsersIcon,
-} from 'lucide-react'
+import { CheckIcon, EyeOffIcon, GiftIcon, ListIcon, LockIcon, PencilIcon, PlusIcon, Share2Icon, UsersIcon } from 'lucide-react'
+import { Logo } from '@/components/logo'
+import { buttonVariants } from '@/components/ui/button'
+import { Avatar, type CardWish, WishCard, WishRow } from '@/components/wish-card'
 import { cn } from '@/lib/utils'
 
-const wishes = [
-  { title: 'Wireless headphones', store: 'Example store · 1 299 kr', icon: HeadphonesIcon, mostWanted: true, takenBy: 'Dad' },
-  { title: 'Wool blanket, grey', store: 'Example store · 649 kr', icon: BedDoubleIcon, mostWanted: true },
-  { title: 'Cookbook: weeknight dinners', store: 'Example bookshop · 249 kr', icon: CookingPotIcon, takenBy: 'you' },
-  { title: 'Board game for 4 players', store: 'Example toy shop · 379 kr', icon: DicesIcon },
+// Sample wishes. url: null so the real cards render plain titles, not links, inside the decorative window.
+const wish = (title: string, store: string, price: number, priority: number, image: string, note: string | null = null): CardWish =>
+  ({ title, store, url: null, price: String(price), currency: 'DKK', priority, note, image_url: `/landing/${image}.svg` })
+const wishes: (CardWish & { takenBy?: string })[] = [
+  { ...wish('Striped rugby shirt', 'Example store', 540, 3, 'shirt', 'Size: Medium. Other colours are fine too.'), takenBy: 'Dad' },
+  wish('Rain jacket, olive', 'Example outdoor shop', 1699, 3, 'jacket', 'Size: Medium'),
+  { ...wish('Wireless headphones', 'Example electronics', 1299, 2, 'headphones'), takenBy: 'you' },
+  wish('Navy tote bag', 'Example store', 349, 1, 'tote'),
 ]
 
 const views = {
@@ -20,8 +23,11 @@ const views = {
 }
 type View = keyof typeof views
 
+const big = 'h-11 px-5 text-base'
+
 // The hero's interactive picture of the product: the same list seen by its owner and by family.
-// The window itself is decorative (aria-hidden); the toggle and its caption carry the meaning.
+// Built from the app's own components, so it stays in step with the real pages.
+// The window itself is decorative (aria-hidden, inert); the toggle and its caption carry the meaning.
 export function LandingPreview({ countdown }: { countdown: string | null }) {
   const [view, setView] = useState<View>('owner')
 
@@ -49,84 +55,104 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
       </div>
       <p aria-live="polite" className="text-sm text-muted-foreground">{views[view].caption}</p>
 
-      <div aria-hidden className="mt-6 w-full select-none">
-        <div className="mx-auto overflow-hidden rounded-3xl bg-card text-left shadow-[0_30px_80px_-30px_rgb(17_29_19/0.35)] ring-1 ring-border">
-          <div className="grid grid-cols-1 lg:grid-cols-[3.5rem_minmax(0,1fr)_17rem]">
-            {/* App rail */}
-            <div className="hidden flex-col items-center gap-5 border-r bg-secondary/60 py-5 text-muted-foreground lg:flex">
-              <span className="grid size-8 place-items-center rounded-lg bg-brand text-brand-foreground"><ListIcon className="size-4" /></span>
-              <UsersIcon className="size-4" />
-              <GiftIcon className="size-4" />
-              <SettingsIcon className="mt-auto size-4" />
-            </div>
-
-            {/* The list */}
-            <div className="p-4 sm:p-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="text-lg font-bold tracking-tight">Christmas 2026</p>
-                {countdown && <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">{countdown}</span>}
+      <div aria-hidden inert className="mt-6 w-full select-none">
+        <div className="overflow-hidden rounded-3xl bg-background text-left shadow-[0_30px_80px_-30px_rgb(17_29_19/0.35)] ring-1 ring-border">
+          {/* The app at its real sizes, zoomed out to fit the window. */}
+          <div className="[zoom:0.6] sm:[zoom:0.62] lg:[zoom:0.72] [&_.bg-muted>img]:size-full">
+            <header className="border-b bg-card">
+              <div className="flex h-18 items-center gap-6 px-8">
+                <Logo />
+                <nav className="hidden gap-1 sm:flex">
+                  {[
+                    { label: 'My lists', Icon: ListIcon, active: view === 'owner' },
+                    { label: 'Family', Icon: UsersIcon, active: view === 'family' },
+                    { label: 'Reserved by me', Icon: GiftIcon, active: false },
+                  ].map(({ label, Icon, active }) => (
+                    <span key={label} className={cn('flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors duration-500', active && 'bg-accent text-primary')}>
+                      <Icon className="size-5" /> {label}
+                    </span>
+                  ))}
+                </nav>
+                <Avatar name="Anna" background={false} className="ml-auto size-12" />
               </div>
-              <ul className="space-y-2.5">
-                {wishes.map((w) => (
-                  <li key={w.title} className="flex items-center gap-3 rounded-2xl border bg-card p-2.5 pr-3">
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-muted text-primary">
-                      <w.icon className="size-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">{w.title}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{w.store}</span>
-                    </span>
-                    {/* Both states share one grid cell and cross-fade, so the row never jumps. */}
-                    <span className="grid shrink-0 justify-items-end *:col-start-1 *:row-start-1 *:transition-all *:duration-500 *:ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:*:transition-none">
-                      <Chip shown={view === 'owner'}>
-                        {w.mostWanted
-                          ? <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-xs font-semibold text-brand-foreground"><StarIcon className="size-3 fill-current" /> Most wanted</span>
-                          : <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">Nice to have</span>}
-                      </Chip>
-                      <Chip shown={view === 'family'}>
-                        {w.takenBy === 'you'
-                          ? <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground"><CheckIcon className="size-3" /> Reserved by you</span>
-                          : w.takenBy
-                            ? <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-ink-foreground">Reserved by {w.takenBy}</span>
-                            : <span className="rounded-full border border-field px-2.5 py-1 text-xs font-semibold text-primary">Reserve</span>}
-                      </Chip>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 flex items-center gap-2 px-1 text-xs text-muted-foreground">
-                <span className="flex gap-1 *:size-1.5 *:rounded-full *:bg-chart-3 motion-safe:*:animate-pulse">
-                  <span /><span className="[animation-delay:150ms]" /><span className="[animation-delay:300ms]" />
-                </span>
-                Fetching name, price and photo…
-              </p>
-              <div className="mt-3 flex items-center gap-2 rounded-full border bg-secondary/60 py-1.5 pr-1.5 pl-4 text-sm text-muted-foreground">
-                <LinkIcon className="size-4" />
-                <span className="flex-1 truncate">Paste a link to add a wish</span>
-                <span className="grid size-8 place-items-center rounded-full bg-ink text-ink-foreground"><ArrowUpIcon className="size-4" /></span>
-              </div>
-            </div>
+            </header>
 
-            {/* Side panel: who the list is shared with, and what happened today */}
-            <div className="hidden border-l bg-secondary/40 p-6 lg:block">
-              <div className="flex flex-col items-center text-center">
-                <span className="grid size-16 place-items-center rounded-full bg-brand text-2xl font-bold text-brand-foreground ring-4 ring-card">A</span>
-                <p className="mt-3 font-semibold">Your list</p>
-                <p className="text-xs text-muted-foreground">Shared with 5 people</p>
-                <div className="mt-4 flex gap-2 text-xs">
-                  <span className="rounded-full bg-card px-3 py-1 ring-1 ring-border">4 wishes</span>
-                  <span className="rounded-full bg-card px-3 py-1 ring-1 ring-border">Family · 5</span>
+            {/* Both pages share one grid cell and cross-fade, so the window keeps its size. */}
+            <div className="grid *:col-start-1 *:row-start-1 *:transition-[opacity,translate,filter,visibility] *:duration-500 *:ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:*:transition-none">
+              <Layer shown={view === 'owner'}>
+                <div className="grid gap-10 px-8 py-10 lg:grid-cols-[16rem_1fr]">
+                  <aside className="hidden space-y-1 lg:block">
+                    <p className="mb-3 text-sm font-semibold tracking-widest text-muted-foreground uppercase">My lists</p>
+                    <span className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground">
+                      Christmas 2026 <span className="ml-auto">{wishes.length}</span>
+                    </span>
+                    <span className="mt-2 flex items-center gap-2 rounded-xl border border-dashed border-ring px-4 py-3 font-medium text-primary">
+                      <PlusIcon className="size-5" /> New list
+                    </span>
+                  </aside>
+                  <main className="min-w-0">
+                    <div className="flex flex-wrap items-end justify-between gap-4">
+                      <div>
+                        <span className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground">Christmas</span>
+                        <p className="mt-3 text-5xl font-bold tracking-tight">Christmas 2026</p>
+                        <p className="mt-2 text-muted-foreground">{[`${wishes.length} wishes`, 'shared with 5 people', countdown].filter(Boolean).join(' · ')}</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className={buttonVariants({ variant: 'outline', className: big })}><PencilIcon /> Edit list</span>
+                        <span className={buttonVariants({ variant: 'outline', className: big })}><Share2Icon /> Share</span>
+                        <span className={buttonVariants({ className: big })}><PlusIcon /> Add a wish</span>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex gap-2">
+                      {['All', 'Most wanted', 'Under 300 kr.'].map((f, i) => (
+                        <span key={f} className={cn('rounded-lg border bg-card px-5 py-2.5 font-medium', i === 0 && 'border-primary bg-primary text-primary-foreground')}>{f}</span>
+                      ))}
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-3 max-lg:[&>*:nth-child(n+3)]:hidden lg:[&>*:nth-child(n+4)]:hidden">
+                      {wishes.map((w) => (
+                        <WishCard key={w.title} wish={w}>
+                          <span className={buttonVariants({ variant: 'secondary', className: big })}>Edit</span>
+                        </WishCard>
+                      ))}
+                    </div>
+                  </main>
                 </div>
-              </div>
-              <p className="mt-8 text-xs font-semibold tracking-widest text-muted-foreground uppercase">Today</p>
-              <ul className="mt-3 space-y-3 text-xs">
-                {[['Jonas opened your list', '16:51'], ['Freja joined your list', '15:12'], ['Wishy added 2 photos', '13:42']].map(([what, when]) => (
-                  <li key={what} className="flex gap-2.5">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground"><CheckIcon className="size-3" /></span>
-                    <span><span className="block font-medium">{what}</span><span className="text-muted-foreground">{when}</span></span>
-                  </li>
-                ))}
-              </ul>
+              </Layer>
+
+              <Layer shown={view === 'family'}>
+                <div className="max-w-5xl px-8 py-10">
+                  <div className="flex items-center gap-5">
+                    <Avatar name="Anna" className="size-20" />
+                    <div>
+                      <span className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground">Christmas</span>
+                      <p className="mt-3 text-5xl font-bold tracking-tight">Christmas 2026</p>
+                      <p className="mt-2 text-muted-foreground">{[`${wishes.length} wishes`, '2 reserved', '2 still free', countdown].filter(Boolean).join(' · ')}</p>
+                    </div>
+                  </div>
+                  <p className="mt-8 flex gap-3 rounded-2xl bg-brand/50 p-5 dark:bg-brand/15">
+                    <EyeOffIcon className="mt-0.5 size-5 shrink-0" />
+                    Anna can’t see what is reserved. Reserve a gift so nobody else in the family buys the same one.
+                  </p>
+                  <div className="mt-6 space-y-4">
+                    {wishes.slice(0, 3).map((w) => (
+                      <WishRow key={w.title} wish={w}>
+                        {w.takenBy === 'you' ? (
+                          <div className="flex items-center gap-4">
+                            <span className="inline-flex items-center gap-2 font-semibold">
+                              <CheckIcon className="size-5 rounded-full bg-brand p-0.5 text-brand-foreground" /> Reserved by you
+                            </span>
+                            <span className={buttonVariants({ variant: 'outline', className: big })}>Unreserve</span>
+                          </div>
+                        ) : w.takenBy ? (
+                          <span className="inline-flex items-center gap-2 text-muted-foreground"><LockIcon className="size-4" /> Reserved by {w.takenBy}</span>
+                        ) : (
+                          <span className={buttonVariants({ className: big })}><GiftIcon /> Reserve this gift</span>
+                        )}
+                      </WishRow>
+                    ))}
+                  </div>
+                </div>
+              </Layer>
             </div>
           </div>
         </div>
@@ -135,6 +161,6 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
   )
 }
 
-function Chip({ shown, children }: { shown: boolean; children: React.ReactNode }) {
-  return <span className={cn(shown ? 'opacity-100' : 'pointer-events-none translate-y-1 scale-95 opacity-0 blur-[2px]')}>{children}</span>
+function Layer({ shown, children }: { shown: boolean; children: React.ReactNode }) {
+  return <div className={cn(!shown && 'pointer-events-none invisible translate-y-2 opacity-0 blur-[2px]')}>{children}</div>
 }
