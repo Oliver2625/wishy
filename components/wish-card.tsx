@@ -1,5 +1,5 @@
 import { Blobatar } from '@blobatar/react'
-import { ImageIcon, StarIcon } from 'lucide-react'
+import { CheckIcon, ImageIcon, LockIcon, StarIcon } from 'lucide-react'
 import type { Wish } from '@/lib/lists'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/currency'
@@ -38,11 +38,11 @@ export function MostWanted({ className }: { className?: string }) {
 
 // Grid card (owner view, preview, reserved-by-me). No hover lift: only the title link and the buttons are clickable, not the card.
 // index: position in a list, for the staggered entrance. Omit (e.g. the form preview) to skip it.
-export function WishCard({ wish, extra, children, index }: { wish: CardWish; extra?: React.ReactNode; children?: React.ReactNode; index?: number }) {
+export function WishCard({ wish, extra, children, index, className }: { wish: CardWish; extra?: React.ReactNode; children?: React.ReactNode; index?: number; className?: string }) {
   return (
     <article
       style={index === undefined ? undefined : stagger(index)}
-      className={cn('flex flex-col overflow-hidden rounded-2xl border bg-card', index !== undefined && enter)}
+      className={cn('flex flex-col overflow-hidden rounded-2xl border bg-card', index !== undefined && enter, className)}
     >
       <div className="relative">
         <Photo src={wish.image_url} className="h-44" />
@@ -62,26 +62,21 @@ export function WishCard({ wish, extra, children, index }: { wish: CardWish; ext
   )
 }
 
-// Row (family view of someone else's list).
-export function WishRow({ wish, children, index }: { wish: CardWish; children?: React.ReactNode; index?: number }) {
-  const meta = [wish.store, formatPrice(wish.price, wish.currency)].filter(Boolean).join(' · ')
+// Card for someone else's list (family view). The state shows in the card itself, so free gifts are easy to scan for:
+// yours get a ring, ones taken by others go quiet. children: the action (Reserve / Unreserve).
+export type GiftState = 'free' | 'mine' | 'taken'
+export function GiftCard({ wish, state, reserver, children, index }: { wish: CardWish; state: GiftState; reserver?: string | null; children?: React.ReactNode; index?: number }) {
   return (
-    <article
-      style={index === undefined ? undefined : stagger(index)}
-      className={cn('flex flex-wrap items-start gap-4 rounded-2xl border bg-card p-4 sm:flex-nowrap sm:items-center sm:gap-5', index !== undefined && enter)}
+    <WishCard
+      wish={wish}
+      index={index}
+      className={cn(state === 'mine' && 'border-primary ring-2 ring-primary/30', state === 'taken' && 'bg-card/60 [&_img]:opacity-60 [&_img]:grayscale')}
+      extra={state === 'mine'
+        ? <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-primary"><CheckIcon className="size-4 rounded-full bg-brand p-0.5 text-brand-foreground" /> Reserved by you</p>
+        : state === 'taken' && <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground"><LockIcon className="size-3.5" /> Reserved{reserver && ` by ${reserver}`}</p>}
     >
-      <Photo src={wish.image_url} className="size-20 shrink-0 rounded-xl sm:size-24" />
-      <div className="min-w-0 flex-1">
-        {wish.priority === 3 && <MostWanted className="mb-1.5 px-2 py-0.5 text-xs" />}
-        <h3 className="text-lg leading-snug font-semibold wrap-break-word"><Title wish={wish} /></h3>
-        {meta && <p className="text-muted-foreground">{meta}</p>}
-        {wish.note && <p className="mt-2 hidden sm:block">&ldquo;{wish.note}&rdquo;</p>}
-      </div>
-      {/* Full card width on phones, so a long note isn't squeezed into the column beside the photo */}
-      {wish.note && <p className="w-full rounded-xl bg-secondary px-4 py-3 text-sm sm:hidden">{wish.note}</p>}
-      {/* Phones: action fills the card width. From sm: right-aligned beside the text */}
-      <div className="flex w-full items-center gap-4 *:flex-1 sm:w-auto sm:*:flex-none">{children}</div>
-    </article>
+      {children}
+    </WishCard>
   )
 }
 

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckIcon, EyeOffIcon, GiftIcon, ListIcon, LockIcon, PencilIcon, PlusIcon, Share2Icon, UsersIcon } from 'lucide-react'
+import { EyeOffIcon, GiftIcon, ListIcon, PencilIcon, PlusIcon, Share2Icon, UsersIcon } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { buttonVariants } from '@/components/ui/button'
-import { Avatar, type CardWish, WishCard, WishRow } from '@/components/wish-card'
+import { Avatar, type CardWish, GiftCard, WishCard } from '@/components/wish-card'
 import { cn } from '@/lib/utils'
 
 // Sample wishes. url: null so the real cards render plain titles, not links, inside the decorative window.
@@ -119,37 +119,49 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
                 </div>
               </Layer>
 
-              <Layer shown={view === 'family'}>
-                <div className="max-w-5xl px-8 py-10">
+              {/* Sized by the owner page (h-0 min-h-full), so the family page is cropped to it and fades out, as if it scrolls on. */}
+              <Layer shown={view === 'family'} className="h-0 min-h-full overflow-hidden mask-b-from-80%">
+                <div className="px-8 py-10">
                   <div className="flex items-center gap-5">
-                    <Avatar name="Anna" className="size-20" />
+                    <Avatar name="Anna" className="size-20 ring-4 ring-card" />
                     <div>
-                      <span className="rounded-full bg-brand px-3 py-1 text-sm font-semibold text-brand-foreground">Christmas</span>
-                      <p className="mt-3 text-5xl font-bold tracking-tight">Christmas 2026</p>
-                      <p className="mt-2 text-muted-foreground">{[`${wishes.length} wishes`, '2 reserved', '2 still free', countdown].filter(Boolean).join(' · ')}</p>
+                      <p className="font-medium text-muted-foreground">{['Anna’s list', 'Christmas', countdown].filter(Boolean).join(' · ')}</p>
+                      <p className="mt-1 text-5xl font-bold tracking-tight">Christmas 2026</p>
                     </div>
                   </div>
-                  <p className="mt-8 flex gap-3 rounded-2xl bg-brand/50 p-5 dark:bg-brand/15">
-                    <EyeOffIcon className="mt-0.5 size-5 shrink-0" />
-                    Anna can’t see what is reserved. Reserve a gift so nobody else in the family buys the same one.
-                  </p>
-                  <div className="mt-6 space-y-4">
-                    {wishes.slice(0, 3).map((w) => (
-                      <WishRow key={w.title} wish={w}>
-                        {w.takenBy === 'you' ? (
-                          <div className="flex items-center gap-4">
-                            <span className="inline-flex items-center gap-2 font-semibold">
-                              <CheckIcon className="size-5 rounded-full bg-brand p-0.5 text-brand-foreground" /> Reserved by you
-                            </span>
-                            <span className={buttonVariants({ variant: 'outline', className: big })}>Unreserve</span>
-                          </div>
-                        ) : w.takenBy ? (
-                          <span className="inline-flex items-center gap-2 text-muted-foreground"><LockIcon className="size-4" /> Reserved by {w.takenBy}</span>
-                        ) : (
-                          <span className={buttonVariants({ className: big })}><GiftIcon /> Reserve this gift</span>
-                        )}
-                      </WishRow>
-                    ))}
+                  <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                    <aside className="hidden space-y-4 lg:order-last lg:block">
+                      <div className="rounded-2xl border bg-card p-5">
+                        <p className="flex items-baseline justify-between font-semibold">2 of {wishes.length} reserved <span className="text-sm font-normal text-muted-foreground">2 still free</span></p>
+                        <div className="mt-3 flex h-2 gap-1 *:flex-1 *:rounded-full">
+                          <span className="bg-muted" /><span className="bg-muted" /><span className="bg-primary" /><span className="bg-chart-3" />
+                        </div>
+                        <p className="mt-4 flex gap-2 text-sm text-muted-foreground"><EyeOffIcon className="mt-0.5 size-4 shrink-0" /> Anna can’t see what’s reserved, so the surprise holds.</p>
+                      </div>
+                      <div className="rounded-2xl border bg-card p-5">
+                        <p className="font-semibold">Good to know</p>
+                        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+                          <dt className="text-muted-foreground">Clothing size</dt><dd>M</dd>
+                          <dt className="text-muted-foreground">Shoe size</dt><dd>39</dd>
+                        </dl>
+                      </div>
+                    </aside>
+                    <div>
+                      <p className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight">
+                        Still free <span className="rounded-full bg-secondary px-2.5 py-0.5 text-sm font-semibold text-secondary-foreground">2</span>
+                      </p>
+                      <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
+                        {[wishes[1], wishes[3]].map((w) => (
+                          <GiftCard key={w.title} wish={w} state="free">
+                            <span className={buttonVariants({ variant: 'outline', className: big })}><GiftIcon /> Reserve</span>
+                          </GiftCard>
+                        ))}
+                        {/* Wide screens have room for one more: the gift you've already taken. */}
+                        <GiftCard wish={wishes[2]} state="mine">
+                          <span className={buttonVariants({ variant: 'outline', className: big })}>Unreserve</span>
+                        </GiftCard>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Layer>
@@ -161,6 +173,6 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
   )
 }
 
-function Layer({ shown, children }: { shown: boolean; children: React.ReactNode }) {
-  return <div className={cn(!shown && 'pointer-events-none invisible translate-y-2 opacity-0 blur-[2px]')}>{children}</div>
+function Layer({ shown, className, children }: { shown: boolean; className?: string; children: React.ReactNode }) {
+  return <div className={cn(className, !shown && 'pointer-events-none invisible translate-y-2 opacity-0 blur-[2px]')}>{children}</div>
 }
