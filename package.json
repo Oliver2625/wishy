@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 127.0.0.1",
-    "build": "next build",
+    "build": "vite build",
+    "build:next": "next build",
     "start": "next start -H 127.0.0.1",
     "lint": "eslint",
     "dev:vinext": "vite dev --port 3001",

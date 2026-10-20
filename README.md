@@ -52,6 +52,7 @@ After that, the admin invites people from the Profile page or by sharing a list 
 ```bash
 npm run dev          # Next.js dev server, http://localhost:3000
 npm run dev:vinext   # the Workers build under Vite, http://localhost:3001
+npm run build        # the Workers build (Cloudflare runs this); `npm run build:next` is the plain Next.js build for `npm start`
 npm run lint
 node --test lib/*.test.mjs
 ```
