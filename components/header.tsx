@@ -12,7 +12,7 @@ import { logout } from '@/app/login/actions'
 
 // short: the phone tab bar's label. Tab bars want single words (HIG tab-bars.md).
 const links = [
-  { href: '/', label: 'My lists', short: 'Lists', icon: ListIcon, active: (p: string) => p === '/' || p.startsWith('/lists') || p.startsWith('/wishes') },
+  { href: '/lists', label: 'My lists', short: 'Lists', icon: ListIcon, active: (p: string) => p.startsWith('/lists') || p.startsWith('/wishes') },
   { href: '/family', label: 'Family', short: 'Family', icon: UsersIcon, active: (p: string) => p.startsWith('/family') },
   { href: '/reserved', label: 'Reserved by me', short: 'Reserved', icon: GiftIcon, active: (p: string) => p === '/reserved' },
 ]

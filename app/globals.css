@@ -8,6 +8,8 @@
   --font-sans: var(--font-dm-sans);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -55,6 +57,8 @@
   color-scheme: light;
   --brand: #a1cca5;
   --brand-foreground: #111d13;
+  --ink: #111d13; /* landing page dark panels */
+  --ink-foreground: #eff5ee;
   --background: #eff5ee;
   --foreground: #111d13;
   --card: #ffffff;
@@ -93,6 +97,8 @@
   color-scheme: dark;
   --brand: #a1cca5;
   --brand-foreground: #111d13;
+  --ink: #1d3020; /* lifted off the dark background so panels still read */
+  --ink-foreground: #e6f0e5;
   --background: #111d13;
   --foreground: #e6f0e5;
   --card: #18271a;
@@ -188,4 +194,56 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* ── Landing page ────────────────────────────────────────────────────────────
+   CSS only, no JS: browsers without scroll-driven animations (or with Reduce Motion on) just show
+   everything in place. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.landing) {
+    scroll-behavior: smooth;
+  }
+
+  /* Hero arrives once on load, in a short stagger. */
+  .landing .rise {
+    animation: 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both landing-rise;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Sections settle into place as they scroll in. */
+    .landing .reveal {
+      animation: landing-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+    /* The header gains its edge once the page moves. */
+    .landing-header {
+      animation: landing-header linear both;
+      animation-timeline: scroll();
+      animation-range: 0 80px;
+    }
+  }
+
+  /* FAQ answers open with a height ease where the browser can animate to `auto`. */
+  .landing details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1), content-visibility 260ms allow-discrete;
+  }
+  .landing details[open]::details-content {
+    block-size: auto;
+  }
+}
+.landing {
+  interpolate-size: allow-keywords;
+}
+.landing [id] {
+  scroll-margin-top: 5rem; /* clears the sticky header */
+}
+@keyframes landing-rise {
+  from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
+}
+@keyframes landing-header {
+  from { border-color: transparent; background-color: transparent; }
 }

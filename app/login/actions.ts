@@ -50,7 +50,7 @@ export async function login(_: LoginState, form: FormData): Promise<LoginState> 
 
   const { error } = await auth.signIn.emailOtp({ email, otp })
   if (error) return { email, error: 'Wrong or expired code.' }
-  redirect('/')
+  redirect('/lists')
 }
 
 export async function logout() {

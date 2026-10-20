@@ -13,7 +13,7 @@ export default async function NewWishPage({ searchParams }: PageProps<'/wishes/n
   if (!me) return null
   const { list } = await searchParams
   const [lists, [profile]] = await Promise.all([myLists(me), sql`select currency from profiles where user_id = ${me.id}`])
-  if (!lists.length) redirect('/')
+  if (!lists.length) redirect('/lists')
   const current = lists.find((l) => l.id === list) ?? lists[0]
 
   return (
