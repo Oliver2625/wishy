@@ -31,7 +31,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
     <>
       <header className="border-b bg-card">
         <div className="mx-auto flex h-18 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-8">
-          <Link href="/" aria-label="Wishy, my lists" className="rounded-lg">
+          <Link href="/lists" aria-label="Wishy, my lists" className="rounded-lg">
             <Logo />
           </Link>
           <Nav />

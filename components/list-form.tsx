@@ -30,7 +30,7 @@ export function ListForm({ family, list, wishCount = 0 }: {
     return r
   }, null)
   const set = (k: 'title' | 'message') => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setV({ ...v, [k]: e.target.value })
-  const back = list ? `/lists/${list.id}` : '/'
+  const back = list ? `/lists/${list.id}` : '/lists'
   const audience = list ? null : v.visibility === 'family' ? 'shared with family' : 'only you'
 
   return (

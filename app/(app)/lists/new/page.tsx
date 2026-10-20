@@ -13,7 +13,7 @@ export default async function NewListPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
-      <BackLink href="/">Back to my lists</BackLink>
+      <BackLink href="/lists">Back to my lists</BackLink>
       <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">Create a new list</h1>
       <p className="mt-2 text-muted-foreground">Give it a name now. You can add wishes and change everything else later.</p>
       <ListForm family={people.map((p) => p.name)} />
