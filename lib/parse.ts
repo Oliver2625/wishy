@@ -63,3 +63,6 @@ export function parseProduct(html: string, pageUrl: string) {
     imageUrl: imageUrl && /^https?:$/.test(imageUrl.protocol) ? imageUrl.href : '',
   }
 }
+
+// Where to go after sign-in: only a path on this site ("/l/abc"), never "//evil.com" or "/\evil.com".
+export const safeNext = (next: string) => /^\/(?![/\\])/.test(next) ? next : '/lists'

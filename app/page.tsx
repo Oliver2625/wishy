@@ -98,6 +98,9 @@ export default async function Landing() {
                 See how it works <ArrowDownIcon className="size-4 transition-transform duration-300 motion-safe:group-hover:translate-y-0.5" />
               </a>
             </div>
+            <p style={{ '--i': 3 } as React.CSSProperties} className="rise mt-4 text-sm text-muted-foreground">
+              Wishy is invite-only. Ask the person who runs your family’s Wishy to add your email.
+            </p>
           </div>
           <div style={{ '--i': 4 } as React.CSSProperties} className="rise mx-auto mt-14 max-w-5xl">
             <LandingPreview countdown={countdown} />
