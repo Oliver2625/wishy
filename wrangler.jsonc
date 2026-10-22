@@ -7,6 +7,8 @@
   "workers_dev": true,
   // Per-version preview URLs would be extra public copies where sign-in fails (not a Neon Auth trusted domain).
   "preview_urls": false,
+  // Required by `wrangler preview`, which Workers Builds runs on PR branches. Empty = same settings as production.
+  "previews": {},
   "assets": {
     "not_found_handling": "none",
   },

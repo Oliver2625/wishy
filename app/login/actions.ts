@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { after } from 'next/server'
 import { auth, isInvited } from '@/lib/auth'
 import { sql } from '@/lib/db'
+import { safeNext } from '@/lib/parse'
 
 // At most CODES_PER_HOUR sign-in codes per email. Each code allows only a few guesses (Neon Auth),
 // so this caps both inbox flooding and code guessing. A per-email lock serializes check and record:
@@ -50,7 +51,7 @@ export async function login(_: LoginState, form: FormData): Promise<LoginState> 
 
   const { error } = await auth.signIn.emailOtp({ email, otp })
   if (error) return { email, error: 'Wrong or expired code.' }
-  redirect('/lists')
+  redirect(safeNext(String(form.get('next') ?? '')))
 }
 
 export async function logout() {

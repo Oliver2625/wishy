@@ -1,5 +1,6 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { ViewTransition } from '@/lib/view-transition'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ const slots = '*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, null)
+  const next = useSearchParams().get('next') ?? ''
 
   if (!state?.email) {
     return (
@@ -55,11 +57,13 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Check your email</CardTitle>
           <CardDescription>
-            Enter the 6-digit code sent to <span className="font-semibold text-foreground">{state.email}</span>.
+            If <span className="font-semibold text-foreground">{state.email}</span> is invited to Wishy, a 6-digit code is on its way.
+            Nothing after a few minutes? Ask the person who invited you.
           </CardDescription>
         </CardHeader>
         <form action={action}>
           <input type="hidden" name="email" value={state.email} />
+          <input type="hidden" name="next" value={next} />
           <CardContent>
             <Field>
               <FieldLabel htmlFor="otp">Sign-in code</FieldLabel>

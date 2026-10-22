@@ -74,9 +74,11 @@ export default async function FamilyListPage({ params }: PageProps<'/family/[id]
             </div>
             <p className="mt-4 flex gap-2 text-sm text-muted-foreground">
               <EyeOffIcon className="mt-0.5 size-4 shrink-0" />
-              {canReserve
-                ? `${firstName} can’t see what’s reserved, so the surprise holds.`
-                : `${firstName} shared this list for you to look at. Ask ${firstName} if you want to reserve gifts from it.`}
+              {!canReserve
+                ? `${firstName} shared this list for you to look at. Ask ${firstName} if you want to reserve gifts from it.`
+                : list.hide_reservations
+                  ? `${firstName} can’t see what’s reserved, so the surprise holds.`
+                  : `${firstName} can see what’s reserved on this list, so it won’t be a surprise.`}
             </p>
           </section>
 
