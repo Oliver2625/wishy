@@ -1,29 +1,5 @@
 /* Copied from shadcn@4.21.3/dist/tailwind.css (MIT) so the shadcn CLI isn't a runtime dependency. */
-@theme inline {
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(
-        --radix-accordion-content-height,
-        var(--accordion-panel-height, auto)
-      );
-    }
-  }
-
-  @keyframes accordion-up {
-    from {
-      height: var(
-        --radix-accordion-content-height,
-        var(--accordion-panel-height, auto)
-      );
-    }
-    to {
-      height: 0;
-    }
-  }
-}
+/* accordion-down/up keyframes removed: nothing here uses an accordion, and they animated height */
 
 /* Custom variants */
 @custom-variant data-open {

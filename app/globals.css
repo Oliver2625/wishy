@@ -1,8 +1,34 @@
+/* Hallmark · shape: Narrative Workflow · genre: editorial · theme: brand · redesign: full · scope: landing (/)
+ * paper: #eff5ee · accent: #415d43 · display: DM Sans · body: DM Sans · hero: Stage · nav: edge-aligned · footer: mast · signature: one tilted phone travels the page, its screen following each section from the list to Dad's reservation
+ * axes: light/geometric-sans/chromatic-green · posture: committed · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, the cropped screenshot did not sit with the page; the hero is now the app at phone width on a plain phone */
+/* Hallmark · waive 47b · one plain phone body around the app's own header and wish cards at 390px · the owner asked for the app on a phone in the hero */
+/* Hallmark · waive 26b · press and disabled states are Tailwind active: and disabled: variants in the components, compiled, not in this source · the landing's buttons press with active:scale and the app's shadcn buttons carry disabled: */
+/* Hallmark · waive 23 · the dark share at 1280 is the tilted phone's titanium body (--device) and the ink buttons · the owner asked for a real-looking phone in the hero, and its metal is not the hunter-green accent */
+/* Hallmark · answered F19 · weight 500 comes only from the app's own cards and chrome shown inside the preview window; the app pass settles it */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./shadcn.css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* Landing scale (Hallmark's roles under new names, so the app's text-sm…text-3xl keep their sizes) */
+@theme {
+  --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.75rem);
+  --text-display-s--line-height: 1.05;
+  --text-section: clamp(2rem, 2.5vw + 1rem, 3.5rem);
+  --text-section--line-height: 1.05;
+  --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem);
+  --text-title--line-height: 1.2;
+  --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+  --text-lead--line-height: 1.45;
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-window: 0 30px 80px -30px rgb(17 29 19 / 0.35);
+  /* The tilted phone: a long soft shadow down and right, plus a tighter contact shadow */
+  --shadow-phone: 36px 48px 80px -28px rgb(17 29 19 / 0.45), 8px 12px 24px -10px rgb(17 29 19 / 0.3);
+}
 
 @theme inline {
   --font-sans: var(--font-dm-sans);
@@ -29,6 +55,9 @@
   --color-input: var(--input);
   --color-field: var(--field);
   --color-ring: var(--ring);
+  --color-device: var(--device);
+  --color-device-edge: var(--device-edge);
+  --color-device-shine: var(--device-shine);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -61,12 +90,12 @@
   --ink-foreground: #eff5ee;
   --background: #eff5ee;
   --foreground: #111d13;
-  --card: #ffffff;
+  --card: #fbfdfa;
   --card-foreground: #111d13;
-  --popover: #ffffff;
+  --popover: #fbfdfa;
   --popover-foreground: #111d13;
   --primary: #415d43;
-  --primary-foreground: #ffffff;
+  --primary-foreground: #f8fbf7;
   --secondary: #eaf2e9;
   --secondary-foreground: #2c412e;
   --muted: #dceadb;
@@ -86,14 +115,17 @@
   --sidebar: #eff5ee;
   --sidebar-foreground: #111d13;
   --sidebar-primary: #415d43;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: #f8fbf7;
   --sidebar-accent: #dceadb;
   --sidebar-accent-foreground: #111d13;
   --sidebar-border: #d3e3d1;
   --sidebar-ring: #709775;
+  --device: #1e2420; /* the landing phone: dark titanium, a hint of the green */
+  --device-edge: #6b746c;
+  --device-shine: #c9d2c9;
 }
 
-.dark {
+[data-theme="dark"] {
   color-scheme: dark;
   --brand: #a1cca5;
   --brand-foreground: #111d13;
@@ -142,7 +174,7 @@
     --field: #4b6853;
     --ring: #415d43;
   }
-  .dark {
+  [data-theme="dark"] {
     --muted-foreground: #c3dcc5;
     --border: #4f6e52;
     --input: #4f6e52;
@@ -158,6 +190,17 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* clip, not hidden: hidden would break the sticky header and the pinned chapter */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background-color: var(--brand);
+    color: var(--brand-foreground);
   }
 
   /* Links have no ring of their own (buttons and fields do), so give keyboard focus a visible one. */
@@ -197,53 +240,165 @@
 }
 
 /* ── Landing page ────────────────────────────────────────────────────────────
-   CSS only, no JS: browsers without scroll-driven animations (or with Reduce Motion on) just show
-   everything in place. */
+   Three motions: the hero settles once on load, blocks rise once as they scroll in (components/landing-motion.tsx),
+   and one phone travels the page beside the sections (the journey, below). The base CSS below is the finished page:
+   no script or a phone get every section with its own picture. */
+.landing [id] {
+  scroll-margin-top: 5rem; /* clears the sticky header */
+}
+
+/* How it works. Static: each step carries its own picture, beside it on wide screens. */
+/* Twelve columns only from 60rem: on a phone eleven column gaps alone are wider than the screen. */
+.chapter__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 60rem) {
+  .chapter__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+}
+.chapter__main {
+  grid-column: 1 / -1;
+}
+.chapter__step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  padding-block: 2.5rem;
+}
+@media (min-width: 60rem) {
+  .chapter__step {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    column-gap: 8%;
+    align-items: center;
+    padding-block: 3.5rem;
+  }
+}
+
+/* ── The journey ─────────────────────────────────────────────────────────────
+   Wide screens, once LandingMotion has set data-screen on .landing: one phone travels down the right side from the
+   hero to the table, its screen following the section in the middle of the window. Sections keep to the left half and
+   their own pictures step aside. Without the script, or under 60rem, this whole block is inert. */
+.landing {
+  --phone-h: 41.6rem; /* the lg phone: 320px wide, a 9:19.5 screen plus bezel and band */
+}
+.journey {
+  position: relative;
+}
+.journey__rail {
+  display: none;
+}
+@media (min-width: 60rem) {
+  .js .landing[data-screen] .journey__rail {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+  }
+  /* Starts exactly where the hero's own phone sits, then sticks at that same height, so it never jumps. */
+  .journey__col {
+    padding-top: max(1rem, calc((100svh - 4rem - var(--phone-h)) / 2));
+  }
+  .journey__phone {
+    position: sticky;
+    top: max(5rem, calc((100svh + 4rem - var(--phone-h)) / 2));
+  }
+  .js .landing[data-screen] .hero-phone {
+    visibility: hidden;
+  }
+  .js .landing[data-screen] .jcol {
+    max-width: calc(50% - 1rem);
+  }
+  .js .landing[data-screen] .chapter__main {
+    grid-column: 1 / span 6;
+  }
+  .js .landing[data-screen] .chapter__step {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 70vh;
+    align-content: center;
+  }
+  .js .landing[data-screen] .step__visual,
+  .js .landing[data-screen] .preview-window {
+    display: none;
+  }
+  .js .landing[data-screen] .preview-root {
+    align-items: flex-start;
+  }
+  .js .landing[data-screen] .journey__band {
+    display: flex;
+    align-items: center;
+    min-height: 90vh;
+  }
+}
+
+/* Screens: the default one shows; on the journey data-screen picks one, and the surprise screen follows the toggle. */
+.phone-screen {
+  transition: opacity 420ms var(--ease-settle), transform 420ms var(--ease-settle);
+}
+/* Only the travelling phone stacks screens, and it exists only once the script has set data-screen. */
+.js .landing[data-screen] .journey__phone .phone-screen {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.js .landing[data-screen="hero"] .journey__phone [data-for="hero"],
+.js .landing[data-screen="save"] .journey__phone [data-for="save"],
+.js .landing[data-screen="share"] .journey__phone [data-for="share"],
+.js .landing[data-screen="reserve"] .journey__phone [data-for="reserve"],
+.js .landing[data-screen="surprise"] .journey__phone [data-for="surprise-owner"],
+.js .landing[data-screen="priorities"] .journey__phone [data-for="priorities"],
+.js .landing[data-screen="reserved"] .journey__phone [data-for="reserved"],
+.js .landing[data-screen="surprise"]:has([data-view="family"][aria-pressed="true"]) .journey__phone [data-for="surprise-family"] {
+  opacity: 1;
+  transform: none;
+}
+.js .landing[data-screen="surprise"]:has([data-view="family"][aria-pressed="true"]) .journey__phone [data-for="surprise-owner"] {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+/* The phone shifts its angle a little at each section. */
+.js .landing[data-screen="save"] .journey__phone .phone-tilt { transform: rotateY(-10deg) rotateX(4deg) rotateZ(2deg); }
+.js .landing[data-screen="share"] .journey__phone .phone-tilt { transform: rotateY(-15deg) rotateX(8deg) rotateZ(-2deg); }
+.js .landing[data-screen="reserve"] .journey__phone .phone-tilt { transform: rotateY(-6deg) rotateX(5deg) rotateZ(-4deg); }
+.js .landing[data-screen="surprise"] .journey__phone .phone-tilt { transform: rotateY(-12deg) rotateX(3deg) rotateZ(1deg); }
+.js .landing[data-screen="priorities"] .journey__phone .phone-tilt { transform: rotateY(-18deg) rotateX(6deg) rotateZ(3deg); }
+.js .landing[data-screen="reserved"] .journey__phone .phone-tilt { transform: rotateY(-8deg) rotateX(2deg) rotateZ(0deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-screen,
+  .phone-tilt {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html:has(.landing) {
     scroll-behavior: smooth;
   }
 
-  /* Hero arrives once on load, in a short stagger. */
+  /* Hero: one settle on load, staggered. */
   .landing .rise {
-    animation: 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both landing-rise;
-    animation-delay: calc(var(--i, 0) * 80ms);
+    animation: landing-rise 640ms var(--ease-settle) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
   }
 
-  @supports (animation-timeline: view()) {
-    /* Sections settle into place as they scroll in. */
-    .landing .reveal {
-      animation: landing-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 35%;
-    }
-    /* The header gains its edge once the page moves. */
-    .landing-header {
-      animation: landing-header linear both;
-      animation-timeline: scroll();
-      animation-range: 0 80px;
-    }
+  /* Reveal once: hidden only once the script has run (.js), shown when it marks the block seen. */
+  .js .landing [data-reveal] {
+    transition: opacity 560ms var(--ease-settle), transform 560ms var(--ease-settle);
+    transition-delay: calc(var(--i, 0) * 60ms);
+  }
+  .js .landing [data-reveal]:not(.is-seen) {
+    opacity: 0;
+    transform: translateY(16px);
   }
 
-  /* FAQ answers open with a height ease where the browser can animate to `auto`. */
-  .landing details::details-content {
-    block-size: 0;
-    overflow: clip;
-    transition: block-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1), content-visibility 260ms allow-discrete;
+  .landing details[open] .faq__answer {
+    animation: landing-rise 320ms var(--ease-settle) both;
   }
-  .landing details[open]::details-content {
-    block-size: auto;
-  }
-}
-.landing {
-  interpolate-size: allow-keywords;
-}
-.landing [id] {
-  scroll-margin-top: 5rem; /* clears the sticky header */
 }
 @keyframes landing-rise {
-  from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
-}
-@keyframes landing-header {
-  from { border-color: transparent; background-color: transparent; }
+  from { opacity: 0; transform: translateY(12px); }
 }

@@ -1,0 +1,33 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "page",
+  "shape": "Narrative Workflow",
+  "theme": "brand",
+  "axes": "light/geometric-sans/chromatic-green",
+  "hero": "Stage",
+  "nav": "edge-aligned",
+  "footer": "mast",
+  "imagery": "screenshots 1 (user-supplied)",
+  "photos": [],
+  "entry": "hero settle, reveal-once, pinned chapter",
+  "sections": [
+   "Hero",
+   "Pinned",
+   "Switcher",
+   "Rows",
+   "Table",
+   "Rail",
+   "Rows (FAQ)",
+   "Band",
+   "Footer"
+  ],
+  "signature": "pinned chapter: one picture from a pasted link to Dad reserving",
+  "waived": [
+   "26b"
+  ],
+  "prompt": "invite-only family wishlists where relatives reserve gifts and the owner stays surprised",
+  "date": "2026-11-19"
+ }
+]

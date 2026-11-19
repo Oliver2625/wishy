@@ -32,7 +32,7 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
   const [view, setView] = useState<View>('owner')
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="preview-root flex flex-col items-center gap-4">
       <div role="group" aria-label="Show the list as" className="relative grid grid-cols-2 rounded-full bg-card p-1 shadow-sm ring-1 ring-border">
         <span
           aria-hidden
@@ -46,6 +46,7 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
             key={v}
             type="button"
             aria-pressed={view === v}
+            data-view={v}
             onClick={() => setView(v)}
             className="relative z-10 min-h-11 rounded-full px-4 text-sm font-semibold whitespace-nowrap text-muted-foreground transition-colors duration-300 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-pressed:text-ink-foreground sm:px-5"
           >
@@ -55,8 +56,8 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
       </div>
       <p aria-live="polite" className="text-sm text-muted-foreground">{views[view].caption}</p>
 
-      <div aria-hidden inert className="mt-6 w-full select-none">
-        <div className="overflow-hidden rounded-3xl bg-background text-left shadow-[0_30px_80px_-30px_rgb(17_29_19/0.35)] ring-1 ring-border">
+      <div aria-hidden inert className="preview-window mt-6 w-full select-none">
+        <div className="overflow-hidden rounded-3xl bg-background text-left shadow-window ring-1 ring-border">
           {/* The app at its real sizes, zoomed out to fit the window. */}
           <div className="[zoom:0.6] sm:[zoom:0.62] lg:[zoom:0.72] [&_.bg-muted>img]:size-full">
             <header className="border-b bg-card">
@@ -82,7 +83,7 @@ export function LandingPreview({ countdown }: { countdown: string | null }) {
               <Layer shown={view === 'owner'}>
                 <div className="grid gap-10 px-8 py-10 lg:grid-cols-[16rem_1fr]">
                   <aside className="hidden space-y-1 lg:block">
-                    <p className="mb-3 text-sm font-semibold tracking-widest text-muted-foreground uppercase">My lists</p>
+                    <p className="mb-3 text-sm font-semibold text-muted-foreground">My lists</p>
                     <span className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground">
                       Christmas 2026 <span className="ml-auto">{wishes.length}</span>
                     </span>

@@ -181,7 +181,10 @@ export function AppearancePicker() {
   const theme = useSyncExternalStore(onThemeChange, readTheme, () => 'system' as Theme)
   const choose = (t: Theme) => {
     try { if (t === 'system') localStorage.removeItem('theme'); else localStorage.setItem('theme', t) } catch {}
-    document.documentElement.classList.toggle('dark', t === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : t === 'dark')
+    const dark = t === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : t === 'dark'
+    // Class for Tailwind's dark: variant and thinking-orbs; data-theme selects the colour tokens (globals.css)
+    document.documentElement.classList.toggle('dark', dark)
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
     dispatchEvent(new Event('themechange'))
   }
   return (
