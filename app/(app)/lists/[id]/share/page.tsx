@@ -9,7 +9,7 @@ import { getMember } from '@/lib/auth'
 import { sql } from '@/lib/db'
 import { getList } from '@/lib/lists'
 
-const card = 'rounded-2xl border bg-card p-6 sm:p-8'
+const card = 'rounded-2xl border bg-card p-5 sm:p-8'
 export async function generateMetadata({ params }: PageProps<'/lists/[id]/share'>): Promise<Metadata> {
   const me = await getMember()
   const list = me && await getList((await params).id, me)
@@ -44,7 +44,8 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
       <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">Share {list.title}</h1>
       <p className="mt-2 text-muted-foreground">Choose who can see this list and reserve gifts from it.</p>
 
-      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_20rem]">
+      {/* grid-cols-1 is minmax(0,1fr): without it the column grows to fit long emails and the page scrolls sideways */}
+      <div className="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           <section className={card}>
             <h2 className="mb-4 text-lg font-semibold">Share with a link</h2>
@@ -62,10 +63,10 @@ export default async function SharePage({ params }: PageProps<'/lists/[id]/share
             </h3>
             <ul className="divide-y border-t">
               {people.map((p) => (
-                <li key={p.email} className="flex items-center gap-2 py-3 sm:gap-4">
-                  {/* No avatar on phones: the name and email get the room and truncate behind the controls */}
+                <li key={p.email} className="flex flex-wrap items-center gap-2 py-3 sm:flex-nowrap sm:gap-4">
+                  {/* Phones: no avatar, and the controls wrap under the name so the email isn't cut short */}
                   <Avatar name={p.name ?? p.email} className="hidden size-11 sm:block" />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
                     <div className="truncate font-semibold">{p.name ?? 'Not signed in yet'}</div>
                     <div className="truncate text-sm text-muted-foreground">{p.email}</div>
                   </div>

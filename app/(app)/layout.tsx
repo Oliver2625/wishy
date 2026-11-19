@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Nav, TabBar, UserMenu } from '@/components/header'
+import { Nav, UserMenu } from '@/components/header'
 import { Logo } from '@/components/logo'
 import { PageTransition } from '@/components/motion'
 import { auth, getMember } from '@/lib/auth'
@@ -35,15 +35,12 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             <Logo />
           </Link>
           <Nav />
-          <div className="ml-auto">
+          <div className="sm:ml-auto">
             <UserMenu name={member.name} email={member.email} />
           </div>
         </div>
       </header>
       <PageTransition>{children}</PageTransition>
-      {/* Keeps the end of the page clear of the phone tab bar (h-16) */}
-      <div aria-hidden className="h-16 shrink-0 sm:hidden" />
-      <TabBar />
     </>
   )
 }
