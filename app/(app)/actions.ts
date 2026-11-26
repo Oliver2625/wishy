@@ -97,6 +97,13 @@ export async function deleteWish(id: string): Promise<Result> {
   return row ? { message: 'Wish deleted', redirectTo: `/lists/${row.wishlist_id}` } : { error: 'Couldn’t delete that wish.' }
 }
 
+// Wishes and shares go with it (on delete cascade).
+export async function deleteList(id: string): Promise<Result> {
+  const me = await member()
+  const [row] = await sql`delete from wishlists where id = ${id} and owner_id = ${me.id} returning title`
+  return row ? { message: `“${row.title}” deleted`, redirectTo: '/lists' } : { error: 'Couldn’t delete that list.' }
+}
+
 // Reserve a free wish on a list I can reserve from, or release my own reservation.
 export async function toggleReserve(id: string): Promise<Result> {
   const me = await member()

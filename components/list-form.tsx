@@ -3,9 +3,13 @@
 import { GiftIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useActionState, useState } from 'react'
-import { type Result, saveList } from '@/app/(app)/actions'
+import { useActionState, useState, useTransition } from 'react'
+import { deleteList, type Result, saveList } from '@/app/(app)/actions'
 import { notify } from '@/components/notify'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { DatePicker } from '@/components/date-picker'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
@@ -93,6 +97,7 @@ export function ListForm({ family, list, wishCount = 0 }: {
 
         <FieldError>{state?.error}</FieldError>
         <div className="flex items-center justify-end gap-3">
+          {list && <DeleteList id={list.id} title={list.title} wishCount={wishCount} />}
           <Link href={back} className={buttonVariants({ variant: 'ghost', className: big })}>Cancel</Link>
           <Button type="submit" disabled={saving} className={`${big} px-6`}>
             {list ? (saving ? 'Saving…' : 'Save list') : (saving ? 'Creating…' : 'Create list')}
@@ -122,5 +127,35 @@ export function ListForm({ family, list, wishCount = 0 }: {
         </div>
       </aside>
     </div>
+  )
+}
+
+function DeleteList({ id, title, wishCount }: { id: string; title: string; wishCount: number }) {
+  const router = useRouter()
+  const [deleting, startDelete] = useTransition()
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger type="button" className={buttonVariants({ variant: 'ghost', className: `${big} mr-auto text-destructive` })}>
+        Delete list
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this list?</AlertDialogTitle>
+          <AlertDialogDescription>
+            &ldquo;{title}&rdquo; and its {wishCount} {wishCount === 1 ? 'wish' : 'wishes'} will be removed for everyone it&apos;s shared with, including any reservations. This can&apos;t be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
+          <AlertDialogAction type="button" variant="destructive" disabled={deleting} onClick={() => startDelete(async () => {
+            const r = await deleteList(id)
+            notify(r)
+            if (r?.redirectTo) router.push(r.redirectTo)
+          })}>
+            {deleting ? 'Deleting…' : 'Delete list'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
